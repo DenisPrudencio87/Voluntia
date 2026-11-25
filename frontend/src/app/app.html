@@ -1,0 +1,63 @@
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <nav
+    class="container d-flex flex-wrap align-items-center gap-3 py-3"
+    aria-label="Navegación principal"
+  >
+    <a class="brand me-auto" routerLink="/" (click)="menu = false"
+      ><i class="bi bi-flower1" aria-hidden="true"></i> voluntia<span class="brand-dot">.</span></a
+    >
+    <button
+      class="btn btn-outline-primary d-md-none"
+      type="button"
+      (click)="menu = !menu"
+      [attr.aria-expanded]="menu"
+      aria-controls="navlinks"
+      aria-label="Abrir navegación"
+    >
+      <i class="bi bi-list"></i>
+    </button>
+    <div id="navlinks" class="nav-links align-items-center gap-3" [class.open]="menu">
+      <a routerLink="/actividades" routerLinkActive="active" (click)="menu = false"
+        >Explorar actividades</a
+      >
+      <a routerLink="/certificados" routerLinkActive="active" (click)="menu = false"
+        >Verificar certificado</a
+      >
+      @if (session.user()) {
+        <a class="btn btn-primary" routerLink="/panel" (click)="menu = false">Mi panel</a>
+        <button class="btn btn-link" type="button" (click)="logout()">Salir</button>
+      } @else {
+        <a class="btn btn-primary" routerLink="/acceso" (click)="menu = false"
+          >Iniciar sesión <i class="bi bi-arrow-up-right"></i
+        ></a>
+      }
+    </div>
+  </nav>
+</header>
+<main id="main" tabindex="-1">
+  <div class="container" aria-live="polite">
+    @if (!session.available()) {
+      <div class="alert alert-warning mt-3">
+        La API no está disponible. Comprueba la conexión y vuelve a cargar.
+      </div>
+    }
+    @if (feedback.error()) {
+      <div class="alert alert-danger mt-3" role="alert">{{ feedback.error() }}</div>
+    }
+    @if (feedback.success()) {
+      <div class="alert alert-success mt-3" role="status">{{ feedback.success() }}</div>
+    }
+    @if (feedback.busy()) {
+      <div class="loading-line" role="status">Procesando…</div>
+    }
+  </div>
+  <router-outlet />
+</main>
+<footer class="site-footer mt-5">
+  <div class="container py-4 d-flex flex-wrap gap-3 justify-content-between">
+    <span class="fw-semibold">Voluntia · Cada acción cuenta.</span
+    ><span>Proyecto académico de impacto social</span
+    ><a routerLink="/actividades">Encuentra tu próxima causa <i class="bi bi-arrow-right"></i></a>
+  </div>
+</footer>

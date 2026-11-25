@@ -49,7 +49,7 @@ def get_owned(activity_id:int,c=Depends(transaction),user=Depends(verified_user)
 @router.put('/manage/activities/{activity_id}')
 def update(activity_id:int,data:Activity,c=Depends(transaction),user=Depends(verified_user)):
     a=owned_activity(c,user,activity_id)
-    if a['estado'] not in ('borrador','publicada','cerrada') or datetime.now(timezone.utc)>=a['fecha_inicio']:
+    if a['estado'] not in ('borrador','publicada','cerrada') or (a['estado']!='borrador' and datetime.now(timezone.utc)>=a['fecha_inicio']):
         raise HTTPException(409,'Esta actividad ya no admite edición')
     if a['estado']!='borrador' and data.fecha_inicio<=datetime.now(timezone.utc):
         raise HTTPException(409,'Mantén el inicio en el futuro')

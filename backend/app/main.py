@@ -1,6 +1,6 @@
 from pathlib import Path
 import logging
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Depends, Request,HTTPException
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import DBAPIError
@@ -66,3 +66,18 @@ def ready():
         return {'status':'ready'}
     except Exception:
         return JSONResponse(status_code=503,content={'status':'not_ready'})
+
+
+@app.get('/{path:path}',include_in_schema=False)
+def frontend(path:str):
+    if path.split('/')[0] in ('api','docs','redoc','openapi.json'):
+        raise HTTPException(404,'Ruta no encontrada')
+    root=Path(__file__).resolve().parents[2]/'frontend'/'dist'/'voluntia-frontend'/'browser'
+    requested=(root/path).resolve()
+    if not requested.is_relative_to(root.resolve()):
+        raise HTTPException(404,'Ruta no encontrada')
+    if requested.is_file():
+        return FileResponse(requested)
+    if '.' in Path(path).name or not (root/'index.html').is_file():
+        raise HTTPException(404,'Recurso no encontrado')
+    return FileResponse(root/'index.html')
