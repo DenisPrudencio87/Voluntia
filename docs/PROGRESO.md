@@ -18,4 +18,13 @@ Resultado local: `python -m alembic -c backend/alembic.ini upgrade head` exitoso
 
 Generados `docs/DICCIONARIO_FISICO.md` y `docs/ERD.md` desde PostgreSQL. Fijados requisitos completos en UTF-8 mediante `scripts/lock_dependencies.py`. CI backend configurado, todavía sin ejecución remota verificada.
 
-Siguiente acción: PR del primer hito, verificar CI; implementar autenticación y repetir pruebas antes del ciclo funcional.
+PR #1: https://github.com/DenisPrudencio87/Voluntia/pull/1. CI aprobado en ejecuciones 45535945305 y 45535945762. Diff revisado, PR integrado (merge `202f240`), sin cambios ajenos ni conflictos.
+
+## Fase 2 — autenticación
+
+- Implementados routers/esquemas/servicios de cuenta, Argon2id, JWT 30 min en cookie HttpOnly, CSRF firmado y Origin, roles revalidados, bloqueo de suspendidos, revocación por timestamp de seguridad, límites por cuenta/IP, errores sin secretos.
+- SMTP configurable con timeout y TLS remoto. Registro, verificación, reenvío y recuperación con tokens hash, expiración, rotación y uso único. Demo sin correo cierra registro y recuperación en servidor.
+- `python -m pytest backend/tests -q`: **14 passed, 15.12 s** con PostgreSQL y Mailpit reales. Pruebas de SMTP fallido/rollback/reintento, token reutilizado, contraseña anterior, sesión revocada, suspensión, CSRF, rate limit y campos privilegiados.
+- Aviso de deprecación de TestClient/httpx en Starlette; no afecta resultado, pendiente evaluar actualización del adaptador de pruebas.
+
+Siguiente acción: registrar PR de auth, continuar perfiles/organizaciones y ciclo de actividad con pruebas de autorización y fechas.

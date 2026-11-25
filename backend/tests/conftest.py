@@ -26,10 +26,25 @@ def db_engine():
 
 @pytest.fixture(autouse=True)
 def clean_database(db_engine):
+    from backend.app.security.session import limiter
+    limiter.hits.clear()
     with db_engine.begin() as c:
         names = c.execute(text("SELECT tablename FROM pg_tables WHERE schemaname='voluntia' AND tablename NOT IN ('rol','estado_inscripcion','categoria','habilidad')")).scalars().all()
         # Identificadores obtenidos del catálogo, nunca del cliente; base dedicada.
         c.exec_driver_sql('TRUNCATE ' + ','.join('voluntia.' + n for n in names) + ' RESTART IDENTITY CASCADE')
+
+
+@pytest.fixture
+def client():
+    from fastapi.testclient import TestClient
+    from backend.app.main import app
+    with TestClient(app,base_url='http://localhost:4200',headers={'Origin':'http://localhost:4200'}) as client:
+        client.get('/api/v1/auth/csrf')
+        yield client
+
+
+def post(client,path,data=None,**kwargs):
+    return client.post('/api/v1'+path,json=data,headers={'x-csrf-token':client.cookies.get('voluntia_csrf','')},**kwargs)
 
 
 @pytest.fixture
