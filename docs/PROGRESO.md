@@ -100,3 +100,11 @@ Siguiente acción que requiere propietario: autorizar específicamente migració
 - Consultas de seguridad: pip-audit producción y npm audit `--omit=dev` sin vulnerabilidades conocidas en esta consulta. Storage admite claves actuales `sb_secret_*` vía apikey y JWT legacy vía Bearer; adaptador real remoto aún no probado.
 
 Siguiente: cerrar recorridos completos desde servidor limpio, revisión visual, clon limpio Windows, informe con puntuación conservadora, PR y CI del cambio.
+
+### Auditoría: cierre funcional y clon (continuación)
+
+- 8 recorridos ampliados de navegador aprobados en **57.2 s**, ahora con upload/download de evidencia, descarga de certificado, historial, notificaciones y logout. Se detectaron y corrigieron historial no reactivo y confirmación de salida perdida. Capturas escritorio/móvil inspeccionadas; sin overflow global, tablas con scroll interno.
+- Protección de query tokens en uvicorn.access sin ocultar errores ni estados; respuestas inesperadas de firma Storage producen 503. Primera ejecución en clon: **57 pytest passed**, Angular **8 passed**.
+- PR real [#6](https://github.com/DenisPrudencio87/Voluntia/pull/6), rama propia. CI señaló error en expectativa de coordinador del test: lectura documental permitida, escritura/miembros restringidos. Se corrigió el test y su sincronización sobre H2 del detalle; regresión HTTP añadida. No se cambió autorización de producción para el test.
+- Clon limpio desde GitHub, setup nuevo, descubierto/corregido quoting de Node en PowerShell 5 (`10d079d`); repetición correcta. Base nueva, rol LOGIN mínimo, migración 0003/seed con runtime y scripts check/start compilado/start desarrollo/stop aprobados. Smoke con tres roles, archivos, IDOR y recuperación cerrada aprobado. No se reutilizó venv/node_modules/build/.env.
+- Docker final reconstruido desde `e22325c`; falta registrar arranque final y CI tras corregir expectativa. No se integrará PR mientras sus checks no estén verdes.

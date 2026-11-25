@@ -149,7 +149,7 @@ no expuesto a PostgREST; revocación de PUBLIC/anon/authenticated en migración.
 
 | Comprobación | Resultado observado en esta auditoría |
 |---|---|
-| Pytest completo, PostgreSQL 17 aislado | **52 passed**, 26.64 s; incluye 24 regresiones nuevas |
+| Pytest completo, PostgreSQL 17 aislado | Primera suite **52 passed**, 26.64 s; ampliada posteriormente a 58 casos, cierre abajo |
 | Angular unitario | **8 passed**, 4 archivos; 3 pruebas nuevas |
 | Angular build | Éxito; initial 615.64 kB, aviso frente al presupuesto 500 kB; no se elevó presupuesto para ocultarlo |
 | Playwright, escritorio y móvil | **8 passed**, 57.2 s; incluye archivos privados, historial, notificaciones y logout |
@@ -189,6 +189,12 @@ host.docker.internal sin TLS fue rechazado por Settings: la invocación correcta
 usa red Docker del proyecto y host `db`. Un reintento E2E sobre servidor reutilizado
 alcanzó el límite correcto de reenvío; se reinició antes de validar la suite entera.
 El cierre de detalles detectado por E2E se corrigió en la aplicación.
+CI `45549874981` detectó además una expectativa incorrecta del test nuevo:
+coordinador puede leer documentos de su organización según el permiso existente,
+pero no subirlos ni administrar miembros/perfil. Se corrigió esa expectativa,
+se esperó el encabezado de detalle H2 para evitar una comprobación prematura y se
+añadió regresión HTTP de lectura 200 / escritura y gestión 403. No se cambió el
+permiso de producción para satisfacer el test.
 
 PR previos verificables: [#1](https://github.com/DenisPrudencio87/Voluntia/pull/1),
 [#2](https://github.com/DenisPrudencio87/Voluntia/pull/2),
@@ -441,3 +447,19 @@ Referencias: [Docker](https://render.com/docs/docker),
 
 Este apartado se completa con resultados observados del clon y PR de auditoría;
 los resultados anteriores no deben interpretarse como despliegue remoto.
+
+- PR de auditoría: [#6](https://github.com/DenisPrudencio87/Voluntia/pull/6).
+- Clon real GitHub en `.local/audit-clone`, con venv/node_modules/build/.env nuevos.
+  Primer setup detectó comillas incompatibles con PowerShell 5 al evaluar Node;
+  corregido en `10d079d`, setup repetido correctamente. No se copiaron dependencias
+  del directorio original.
+- Base nueva `voluntia_audit_clone_demo`, migrada a 0003, y rol LOGIN exclusivo
+  `voluntia_audit_runtime`, sin superusuario/CREATEDB/CREATEROLE/BYPASSRLS. Seed
+  completo ejecutado con ese rol; no cuenta propietaria de aplicación.
+- `check.ps1`, `start.ps1 -BackendPort 8015 -Built`, smoke HTTP de tres roles,
+  `stop.ps1`, arranque desarrollo 8015/4215 y proxy `/api/ready` 200, parada de ambos
+  procesos: aprobados. Archivo existente/nuevo y revisión descargables, ajeno404,
+  visitante401, recuperación demo403; permisos DDL/DELETE/historial denegados.
+- Desde venv del clon: **57 passed**, 29.93 s, antes del último test de coordinador;
+  Angular **8 passed**, 2.96 s, build 615.64 kB. La última suite y CI se registran al
+  terminar. `git status --short` del clon vacío tras scripts.

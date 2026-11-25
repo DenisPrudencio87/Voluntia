@@ -125,7 +125,9 @@ test('administración secundaria, permisos, estados vacíos y sesiones vencidas'
     .getByLabel('Qué hacemos')
     .fill('Equipo ficticio para verificar permisos de coordinación.');
   await page.getByRole('button', { name: 'Registrar organización', exact: true }).last().click();
-  await expect(page.getByRole('heading', { name: organization, exact: true }).last()).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: organization, exact: true, level: 2 }),
+  ).toBeVisible();
   await page.getByText('Miembros y permisos', { exact: true }).click();
   await page.getByLabel('Correo de la cuenta').fill(credentials.vol.email);
   await page.getByLabel('Cargo', { exact: true }).selectOption('coordinador');
@@ -139,9 +141,16 @@ test('administración secundaria, permisos, estados vacíos y sesiones vencidas'
   await login(page, credentials.vol.email, credentials.vol.password);
   await page.goto('/panel/organizacion');
   await page.getByRole('button', { name: new RegExp(organization) }).click();
-  await expect(page.getByRole('heading', { name: organization, exact: true }).last()).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: organization, exact: true, level: 2 }),
+  ).toBeVisible();
   await expect(page.getByText('Miembros y permisos', { exact: true })).toHaveCount(0);
-  await expect(page.getByText('Documentos de verificación', { exact: true })).toHaveCount(0);
+  await page.getByText('Documentos de verificación', { exact: true }).click();
+  await expect(page.getByLabel('Documento PDF', { exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole('button', { name: 'Subir documento privado', exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText('Perfil de la organización', { exact: true })).toHaveCount(0);
   await page.goto('/panel/admin');
   await expect(page).toHaveURL(/\/panel$/);
   await page.goto('/panel/notificaciones');

@@ -411,3 +411,38 @@ def test_access_log_redacts_query_tokens_without_hiding_status():
     assert RedactAccessQuery().filter(record)
     assert "private-fictitious-token" not in record.getMessage()
     assert "/verificar" in record.getMessage() and "200" in record.getMessage()
+
+
+def test_coordinator_can_read_documents_but_cannot_manage_them(accounts):
+    from backend.tests.test_domain import approve_org
+    from backend.app.services.certificates import certificate_pdf
+    from datetime import datetime, timezone
+
+    org = organization(accounts)
+    doc = approve_org(accounts, org)
+    assert (
+        put(
+            accounts["org"],
+            f"/organization/{org}/members",
+            {"correo": "other@example.org", "cargo": "coordinador", "estado": "activo"},
+        ).status_code
+        == 200
+    )
+    other = accounts["other"]
+    assert other.get(f"/api/v1/organization/{org}/documents").status_code == 200
+    assert (
+        other.get(f"/api/v1/organization/{org}/documents/{doc}/file").status_code == 200
+    )
+    assert other.get(f"/api/v1/organization/{org}/members").status_code == 403
+    pdf = certificate_pdf(
+        "Ficticio", "Documento", "Prueba", 1, "ficticio", datetime.now(timezone.utc)
+    )
+    assert (
+        upload(
+            other,
+            f"/organization/{org}/documents",
+            pdf,
+            data={"tipo_documento": "Prueba", "numero_documento": "AUDIT"},
+        ).status_code
+        == 403
+    )
