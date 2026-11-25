@@ -1,0 +1,24 @@
+name: voluntia-local
+services:
+  db:
+    image: postgres:17.7-alpine
+    environment:
+      POSTGRES_USER: voluntia
+      POSTGRES_PASSWORD: voluntia_local
+      POSTGRES_DB: voluntia
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - voluntia-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U voluntia -d voluntia"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  mailpit:
+    image: axllent/mailpit:v1.27.8
+    ports:
+      - "127.0.0.1:1025:1025"
+      - "127.0.0.1:8025:8025"
+volumes:
+  voluntia-db:
