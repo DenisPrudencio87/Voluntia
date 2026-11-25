@@ -88,3 +88,15 @@ Siguiente acción: PR de Angular/CI, fase 6 de seguridad y pruebas negativas; co
 Estado: implementación y verificación local terminadas; publicación remota no realizada. Docker demo disponible en `http://localhost:8080`, Mailpit exclusivamente `http://localhost:8025`. Credenciales ficticias privadas en `.local/demo-credentials.json`; no mostrarlas al proyectar. Los servidores temporales de tests se detienen al cerrar la verificación.
 
 Siguiente acción que requiere propietario: autorizar específicamente migración/grants y prueba de Storage en la demo Supabase, y posteriormente despliegue manual del servicio Render existente conforme a GUIA_DESPLIEGUE. Configurar secretos por canal privado, no chat. Mantener registro/recuperación remotos cerrados mientras falte correo. Ver INFORME_BRECHAS para límites académicos y producción.
+
+## Auditoría final solicitada — 24/11/2026, Lima (en curso)
+
+- Rama `feature/auditoria-final` desde main `fbdd430`; revisión independiente de implementación, especificaciones y PDF original. Sin modificaciones remotas de Supabase/Render.
+- Se reprodujeron antes de corregir **10 fallos backend y 2 de Angular**: permisos organizativos recuperables, rechazo documental invisible, logout vencido, CSRF Unicode, aceptación SQL sin rol vigente o fuera de plazo real, archivos MIME/PDF activos y error de disco, confirmaciones borradas y concurrencia de Feedback.
+- Corregidos con regresiones. Primera suite ampliada: **49 passed** backend; Angular **7 passed**. Compilación aprobada; advertencia inicial 615.62 kB pendiente de optimización opcional. Ruff con selección F y pip check aprobados. La ejecución exploratoria de Ruff sin selección encontró reglas de estilo adicionales; no se declara aprobada esa configuración.
+- Revisión 0003 mantiene 23 tablas. Probadas migración incremental 0002→0003, idempotencia y exportación SQL seguida de ejecución real en base vacía. SQL original 0001/0002 conservado; adaptado únicamente el cargador Python para soportar `--sql`. Readiness exige head y 23 tablas; runtime recibe lectura de `public.alembic_version`.
+- Navegador ampliado detectó cierre de detalles tras refrescar organización; corregido manteniendo selección y cargo autoritativo. Segundo recorrido: 7/8; único fallo restante de esa ejecución fue límite correcto de reenvío acumulado entre repeticiones, por lo que se reinicia el servidor de pruebas antes de una ejecución completa nueva. No se eliminan límites para pasar pruebas.
+- Docker construido y arrancado en red local propia, `PORT=10000`, SPA/ready HTTP 200, UID 999 sin root. Primer intento con alias host sin TLS rechazado por configuración; corregida la invocación usando el servicio PostgreSQL local `db`.
+- Consultas de seguridad: pip-audit producción y npm audit `--omit=dev` sin vulnerabilidades conocidas en esta consulta. Storage admite claves actuales `sb_secret_*` vía apikey y JWT legacy vía Bearer; adaptador real remoto aún no probado.
+
+Siguiente: cerrar recorridos completos desde servidor limpio, revisión visual, clon limpio Windows, informe con puntuación conservadora, PR y CI del cambio.

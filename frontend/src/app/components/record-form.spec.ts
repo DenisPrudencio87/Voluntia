@@ -1,6 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import { RecordForm } from './record-form';
 describe('RecordForm', () => {
+  it('rechaza texto vacío tras recortar y números fraccionarios', () => {
+    const f = TestBed.createComponent(RecordForm);
+    f.componentRef.setInput('fields', [
+      { key: 'nombre', label: 'Nombre', required: true, min: 2 },
+      { key: 'cupo', label: 'Cupo', type: 'number', required: true, min: 1 },
+    ]);
+    f.detectChanges();
+    const saved = vi.fn();
+    f.componentInstance.saved.subscribe(saved);
+    f.componentInstance.form.setValue({ nombre: '   ', cupo: 1.5 });
+    f.componentInstance.submit();
+    expect(saved).not.toHaveBeenCalled();
+    expect(f.componentInstance.form.controls['nombre'].invalid).toBe(true);
+    expect(f.componentInstance.form.controls['cupo'].invalid).toBe(true);
+  });
   it('rechaza fechas invertidas antes de llamar a la API', () => {
     const f = TestBed.createComponent(RecordForm);
     f.componentRef.setInput('fields', [

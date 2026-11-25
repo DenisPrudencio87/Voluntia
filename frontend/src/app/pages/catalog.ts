@@ -81,8 +81,9 @@ import { LabelPipe } from '../components/labels';
             </div>
             <div class="card-body">
               <div class="d-flex gap-2 mb-3">
-                <span class="pill">{{ a.categoria }}</span
-                ><span class="pill pill-neutral">{{ a.estado | label }}</span>
+                <span class="pill">{{ a.categoria }}</span><span class="pill pill-neutral">{{
+                  a.estado | label
+                }}</span>
               </div>
               <h3>
                 <a [routerLink]="['/actividades', a.id_actividad]">{{ a.titulo }}</a>

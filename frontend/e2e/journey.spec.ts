@@ -49,6 +49,8 @@ test('recorrido de roles hasta certificado con PostgreSQL real', async ({ browse
   const org = await orgContext.newPage(),
     admin = await adminContext.newPage(),
     vol = await volContext.newPage();
+  const errors: string[] = [];
+  for (const p of [org, admin, vol]) p.on('pageerror', (e) => errors.push(e.message));
   for (const p of [org, admin, vol])
     p.on('dialog', (d) =>
       d.type() === 'prompt' ? d.accept('Revisión académica ficticia') : d.accept(),
@@ -87,7 +89,9 @@ test('recorrido de roles hasta certificado con PostgreSQL real', async ({ browse
     .filter({ has: admin.getByRole('heading', { name: orgName, exact: true }) })
     .first();
   await orgRow.getByRole('button', { name: 'Revisar documentos' }).click();
-  await expect(admin.getByRole('heading', {name:'Documentos de verificación',exact:true})).toBeVisible();
+  await expect(
+    admin.getByRole('heading', { name: 'Documentos de verificación', exact: true }),
+  ).toBeVisible();
   await orgRow.getByRole('button', { name: 'Aprobar documento', exact: true }).click();
   await expect(orgRow.getByText(/Constancia ficticia.*Aprobado/)).toBeVisible();
   await orgRow.getByRole('button', { name: 'Aprobar', exact: true }).click();
@@ -114,6 +118,20 @@ test('recorrido de roles hasta certificado con PostgreSQL real', async ({ browse
   const activity = org.url().split('/').pop()!;
   await org.getByRole('button', { name: 'Publicar', exact: true }).click();
   await expect(org.getByText('Publicada', { exact: true })).toBeVisible();
+  await org.getByText('Evidencias privadas', { exact: true }).click();
+  await org
+    .getByLabel('Seleccionar archivo', { exact: true })
+    .setInputFiles({ name: 'evidencia.pdf', mimeType: 'application/pdf', buffer: pdf });
+  const evidenceDescription = 'Evidencia ficticia ' + info.project.name;
+  await org.getByLabel('Descripción de la evidencia').fill(evidenceDescription);
+  await org.getByRole('button', { name: 'Subir evidencia privada', exact: true }).click();
+  await expect(org.getByRole('link', { name: new RegExp(evidenceDescription) })).toBeVisible();
+  await expect(org.getByLabel('Seleccionar archivo', { exact: true })).toHaveValue('');
+  const [evidenceDownload] = await Promise.all([
+    org.waitForEvent('download'),
+    org.getByRole('link', { name: new RegExp(evidenceDescription) }).click(),
+  ]);
+  expect(await evidenceDownload.failure()).toBeNull();
   await login(vol, 'vol');
   await vol.goto('/panel/perfil');
   await vol.getByLabel('Nombres', { exact: true }).fill('Persona E2E');
@@ -157,8 +175,17 @@ test('recorrido de roles hasta certificado con PostgreSQL real', async ({ browse
   await org.getByRole('button', { name: 'Emitir certificado' }).click();
   await expect(org.getByText('Certificado emitido', { exact: true })).toBeVisible();
   await vol.goto('/panel/voluntario');
-  const participation = vol.locator('article').filter({has:vol.getByRole('link',{name:title,exact:true})});
+  const participation = vol
+    .locator('article')
+    .filter({ has: vol.getByRole('link', { name: title, exact: true }) });
   await expect(participation.getByRole('link', { name: 'Descargar certificado' })).toBeVisible();
+  await participation.getByRole('button', { name: 'Ver historial' }).click();
+  await expect(participation.locator('ol li')).toHaveCount(3);
+  const [certificateDownload] = await Promise.all([
+    vol.waitForEvent('download'),
+    participation.getByRole('link', { name: 'Descargar certificado' }).click(),
+  ]);
+  expect(await certificateDownload.failure()).toBeNull();
   const link = participation.getByRole('link', { name: 'Verificar certificado', exact: true });
   await link.click();
   await vol.getByRole('button', { name: 'Verificar certificado' }).click();
@@ -168,6 +195,18 @@ test('recorrido de roles hasta certificado con PostgreSQL real', async ({ browse
     expect(await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
       true,
     );
+  await org.screenshot({
+    path: path.join(root, '.local', 'audit-gestion-' + info.project.name + '.png'),
+    fullPage: true,
+  });
+  await vol.screenshot({
+    path: path.join(root, '.local', 'audit-certificado-' + info.project.name + '.png'),
+    fullPage: true,
+  });
+  await vol.goto('/panel/notificaciones');
+  await vol.getByRole('button', { name: 'Marcar como leída', exact: true }).first().click();
+  await expect(vol.getByText('Leída', { exact: true }).first()).toBeVisible();
+  expect(errors).toEqual([]);
   await orgContext.close();
   await adminContext.close();
   await volContext.close();

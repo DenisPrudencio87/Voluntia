@@ -136,3 +136,9 @@ En GitHub abrir PR #1–#4 y el hito final, commits descriptivos y ejecuciones d
 en verde. Enseñar un fallo resuelto sin ocultarlo. El workflow tiene pruebas de
 PostgreSQL, Angular y navegador. No confundir una captura de CI con dominio del código:
 debes poder explicar qué valida cada prueba y qué no demuestra.
+# Lectura complementaria de auditoría
+
+Leer [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md) para explicar los defectos corregidos,
+por qué now() y clock_timestamp() difieren, la revocación de membresías, la 3FN real,
+las claves actuales de Storage y las evidencias que todavía faltan. No presentar
+contratos MockTransport ni una demo local como despliegue o consumo remoto probado.

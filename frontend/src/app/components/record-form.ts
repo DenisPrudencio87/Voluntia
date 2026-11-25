@@ -119,6 +119,7 @@ export class RecordForm implements OnChanges {
       const validators = [];
       if (field.required) validators.push(Validators.required);
       if (field.type === 'email') validators.push(Validators.email);
+      if (field.type === 'number') validators.push(Validators.pattern(/^-?\d+$/));
       if (field.key.endsWith('_url') || field.key === 'sitio_web')
         validators.push(Validators.pattern(/^https:\/\/[^\s/]+(?:\/.*)?$/));
       if (field.min !== undefined)
@@ -141,6 +142,11 @@ export class RecordForm implements OnChanges {
     return !!(c?.invalid && c.touched);
   }
   submit() {
+    for (const field of this.fields) {
+      const control = this.form.get(field.key);
+      if (typeof control?.value === 'string' && field.type !== 'password')
+        control.setValue(control.value.trim());
+    }
     this.form.markAllAsTouched();
     this.mismatch =
       this.form.contains('confirmacion') && this.form.value.clave !== this.form.value.confirmacion;

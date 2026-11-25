@@ -1,5 +1,9 @@
 # Despliegue preparado: Supabase + Render existentes
 
+Procedimiento detallado actualizado y límites de evidencia en
+[AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), incluidas claves sb_secret_*, exportación
+de migraciones y selección Save only de Render.
+
 No se ejecutaron migraciones remotas, creación de buckets ni despliegue. Auto-Deploy
 permanece fuera de las acciones realizadas. Se requiere autorización específica
 del propietario para ejecutar esta guía contra servicios remotos.
@@ -79,8 +83,9 @@ Referencias primarias: [Supabase Storage](https://supabase.github.io/storage/),
    Provisionar cuentas ficticias privadamente con CLI. `scripts.seed_demo --allow-remote`
    solo se considera después de autorización expresa y base de demo vacía. No usar
    el seed en producción ni presentar cuentas preactivadas como correo verificado.
-5. Ejecutar despliegue manual únicamente tras autorización. Health `/api/health`;
-   readiness `/api/ready` comprueba conexión y catálogo. Un health verde por sí solo
+5. Ejecutar despliegue manual únicamente tras autorización. Configurar health check
+   Render `/api/ready`: comprueba conexión, 23 tablas y revisión Alembic vigente.
+   `/api/health` solo comprueba proceso vivo. Un health verde por sí solo
    no demuestra DB/Storage funcionales.
 6. Desde un navegador externo, recorrer visitante y tres roles, confirmar HTTPS,
    cookies Secure/HttpOnly, restricciones CSRF, documentos privados y certificado.

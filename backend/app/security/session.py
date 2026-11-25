@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import secrets
+import re
 from collections import defaultdict, deque
 from datetime import datetime, timedelta, timezone
 from threading import Lock
@@ -33,6 +34,8 @@ def csrf_token():
 
 
 def valid_csrf(token):
+    if not re.fullmatch(r"[A-Za-z0-9_-]{43}\.[a-f0-9]{64}", token):
+        return False
     nonce, _, signature = token.partition(".")
     expected = hmac.new(
         settings.jwt_secret.encode(), nonce.encode(), hashlib.sha256
@@ -128,7 +131,7 @@ class RateLimiter:
         self.hits = defaultdict(deque)
         self.lock = Lock()
 
-    def check(self, request, action, account="", limit=10, window=60):
+    def check(self, request, action, account="", limit=10, window=60, ip_limit=None):
         now = monotonic()
         ip = request.client.host if request.client else "unknown"
         with self.lock:
@@ -139,7 +142,10 @@ class RateLimiter:
                 q = self.hits[key]
                 while q and q[0] <= now - window:
                     q.popleft()
-                if len(q) >= limit:
+                threshold = (
+                    ip_limit if identity.startswith("ip:") and ip_limit else limit
+                )
+                if len(q) >= threshold:
                     raise HTTPException(
                         429,
                         "Demasiados intentos. Intenta más tarde.",

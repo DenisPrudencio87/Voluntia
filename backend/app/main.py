@@ -16,6 +16,13 @@ from backend.app.routers import (
     admin,
 )
 from backend.app.security.session import SAFE_METHODS, valid_csrf
+from backend.app.security.body_limit import BodyLimitMiddleware
+from alembic.config import Config
+from alembic.script import ScriptDirectory
+
+REQUIRED_REVISION = ScriptDirectory.from_config(
+    Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
+).get_current_head()
 
 app = FastAPI(
     title="Voluntia API",
@@ -32,13 +39,17 @@ for module in (
     admin,
 ):
     app.include_router(module.router, prefix="/api/v1")
+app.add_middleware(BodyLimitMiddleware)
 
 
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
     length = request.headers.get("content-length", "0") or "0"
     if request.method not in SAFE_METHODS and (
-        not length.isdigit() or int(length) > 11 * 1024 * 1024
+        len(length) > 12
+        or not length.isascii()
+        or not length.isdigit()
+        or int(length) > 11 * 1024 * 1024
     ):
         return JSONResponse(
             status_code=413, content={"detail": "Archivo demasiado grande"}
@@ -121,7 +132,15 @@ def ready():
         from backend.app.db import engine
 
         with engine.connect() as c:
-            if one(c, "SELECT count(*) n FROM rol")["n"] != 3:
+            state = one(
+                c,
+                "SELECT (SELECT count(*) FROM rol) roles,(SELECT version_num FROM public.alembic_version) revision,(SELECT count(*) FROM information_schema.tables WHERE table_schema='voluntia') tablas",
+            )
+            if (
+                state["roles"] != 3
+                or state["revision"] != REQUIRED_REVISION
+                or state["tablas"] != 23
+            ):
                 raise RuntimeError()
         return {"status": "ready"}
     except Exception:

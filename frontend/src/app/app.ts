@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, effect } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
 import { Session } from './services/session';
 import { Feedback } from './services/api';
+import { SessionState } from './services/session-state';
 @Component({
   selector: 'app-root',
   imports: [RouterLink, RouterLinkActive, RouterOutlet],
@@ -14,6 +15,13 @@ export class App {
   router = inject(Router);
   menu = false;
   constructor() {
+    const state = inject(SessionState);
+    effect(() => {
+      if (state.expired()) {
+        state.expired.set(false);
+        void this.router.navigateByUrl('/acceso');
+      }
+    });
     this.router.events.subscribe((e) => {
       if (e instanceof NavigationEnd) {
         this.feedback.error.set('');
@@ -25,7 +33,8 @@ export class App {
   async logout() {
     await this.feedback.run(async () => {
       await this.session.logout();
-      await this.router.navigateByUrl('/');
+      this.menu = false;
+      await this.router.navigateByUrl('/acceso');
     }, 'Sesión cerrada');
   }
 }

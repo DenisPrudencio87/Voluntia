@@ -42,7 +42,8 @@ def test_supabase_adapter_contract_and_failure(monkeypatch):
             return httpx.Response(
                 200,
                 json={
-                    "signedURL": "/object/sign/voluntia-demo-private/certificates/1/test.pdf?token=ficticio"
+                    "signedURL": request.url.path.removeprefix("/storage/v1")
+                    + "?token=ficticio"
                 },
             )
         return httpx.Response(200, json={"Key": "ficticio"})
@@ -78,3 +79,26 @@ def test_certificate_long_values_fit_one_page():
         datetime.now(timezone.utc),
     )
     assert len(PdfReader(io.BytesIO(content)).pages) == 1
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [None, [], {"signedURL": 123}, {"signedURL": "https://outside.invalid/object"}],
+)
+def test_invalid_signed_url_response_fails_closed(monkeypatch, payload):
+    from backend.app.config import settings
+
+    monkeypatch.setattr(settings, "storage_backend", "supabase")
+    monkeypatch.setattr(settings, "supabase_url", "https://storage.invalid")
+
+    def handler(request):
+        return httpx.Response(
+            200,
+            content="null" if payload is None else __import__("json").dumps(payload),
+        )
+
+    with httpx.Client(transport=httpx.MockTransport(handler)) as client:
+        monkeypatch.setattr(httpx, "post", client.post)
+        with pytest.raises(HTTPException) as error:
+            download("documents/1/" + "a" * 40 + ".pdf")
+        assert error.value.status_code == 503

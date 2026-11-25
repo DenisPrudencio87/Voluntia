@@ -1,5 +1,5 @@
 # Entorno confirmado y despliegue pendiente
-Estado comunicado por el propietario al 24/11/2026. No es evidencia de pruebas de la aplicación, que aún no existe.
+Estado de preparación inicial comunicado por el propietario al 24/11/2026. No es evidencia de pruebas de la aplicación. Para implementación y comprobaciones posteriores consultar PROGRESO.md y AUDITORIA_FINAL.md.
 
 - Windows/PowerShell, VS Code, Codex con «Aprobar por mí». Node 24.21.0, npm 11.19.0. Python 3.13 y su pip disponibles (usar `py -3.13` y luego el ejecutable de la venv; no `pip` global). Python 3.12 puede ser alternativa documentada si se prueba. Git, gh autenticado, Docker Desktop/Compose y WSL 2 confirmados con hello-world desde terminal normal.
 - Repo privado existente: https://github.com/DenisPrudencio87/Voluntia, main, commit inicial 0ed76f1. No recrear. Acceso Render confirmado por clonación. Primer deploy falló porque todavía no había Dockerfile, no es un error del código. Auto-Deploy desactivado por propietario.

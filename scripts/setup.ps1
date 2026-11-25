@@ -2,7 +2,8 @@
 . (Join-Path $PSScriptRoot 'common.ps1')
 Set-Location $ProjectRoot
 $nodeMajor = [int](& node -p 'Number.parseInt(process.versions.node)')
-if ($nodeMajor -ne 24) { throw 'Se requiere Node 24. No se instalará software global.' }
+$nodeMinor = [int](& node -p 'Number(process.versions.node.split(".")[1])')
+if ($nodeMajor -ne 24 -or $nodeMinor -lt 15) { throw 'Se requiere Node 24.15 o superior de la serie 24. No se instalará software global.' }
 Get-Command npm.cmd -ErrorAction Stop | Out-Null
 if (-not (Test-Path -LiteralPath $PythonExe)) {
     Invoke-Checked 'py' @('-3.13','-m','venv','.venv')

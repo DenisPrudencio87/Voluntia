@@ -168,10 +168,10 @@ def users(page: int = Query(1, ge=1), c=Depends(transaction, scope="function")):
     )
 
 
-def protect_last_admin(c, user_id, remove_org=False):
+def protect_last_admin(c, user_id):
     general = one(
         c,
-        "SELECT 1 FROM usuario_rol ur JOIN rol r USING(id_rol) WHERE ur.id_usuario=:u AND ur.activo AND r.nombre='administrador'",
+        "SELECT 1 FROM usuario_rol ur JOIN rol r USING(id_rol) JOIN usuario u USING(id_usuario) WHERE ur.id_usuario=:u AND ur.activo AND r.nombre='administrador' AND u.estado='activo' AND u.email_verificado",
         u=user_id,
     )
     if (
@@ -252,6 +252,13 @@ def user_roles(
         protect_last_admin(c, user_id)
     if "organizacion" not in data.roles:
         protect_org_admins(c, user_id)
+        # Revocar el rol también retira las membresías anteriores: crear otra
+        # organización no debe recuperar permisos que administración retiró.
+        execute(
+            c,
+            "UPDATE organizacion_miembro SET estado='inactivo' WHERE id_usuario=:u AND estado='activo'",
+            u=user_id,
+        )
     execute(c, "UPDATE usuario_rol SET activo=false WHERE id_usuario=:u", u=user_id)
     for role in set(data.roles):
         execute(

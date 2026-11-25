@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Api, Feedback } from '../services/api';
@@ -49,7 +50,7 @@ import { optional, withLocation, localDate, reason } from '../components/domain-
         </div>
       </div>
     }
-    @if (!activity() || canEdit()) {
+    @if ((!route.snapshot.paramMap.has('id') && !feedback.busy()) || canEdit()) {
       <details class="surface" [open]="!activity() || activity()?.estado === 'borrador'">
         <summary class="fw-semibold">
           {{ activity() ? 'Editar actividad' : 'Datos de la actividad' }}
@@ -227,6 +228,8 @@ import { optional, withLocation, localDate, reason } from '../components/domain-
     }`,
 })
 export class ManageActivity implements OnInit {
+  private destroyRef = inject(DestroyRef);
+  private loading = 0;
   api = inject(Api);
   feedback = inject(Feedback);
   route = inject(ActivatedRoute);
@@ -243,6 +246,7 @@ export class ManageActivity implements OnInit {
   attendanceTarget = 0;
   attendanceInitial = signal<object | null>(null);
   file: File | null = null;
+  private fileInput: HTMLInputElement | null = null;
   attendanceFields: Field[] = [
     {
       key: 'estado',
@@ -340,9 +344,17 @@ export class ManageActivity implements OnInit {
         { key: 'direccion', label: 'Dirección' },
       ];
     });
-    if (this.route.snapshot.paramMap.has('id')) await this.load();
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.loading++;
+      this.activity.set(null);
+      this.initial.set(null);
+      this.skills = [];
+      this.file = null;
+      if (this.route.snapshot.paramMap.has('id')) void this.load();
+    });
   }
   async load() {
+    const ticket = ++this.loading;
     await this.feedback.run(async () => {
       const id = this.route.snapshot.paramMap.get('id');
       const [a, p, i, e] = await Promise.all([
@@ -351,6 +363,7 @@ export class ManageActivity implements OnInit {
         this.api.get<Impact | null>('/manage/activities/' + id + '/impact'),
         this.api.get<Evidence[]>('/manage/activities/' + id + '/evidence'),
       ]);
+      if (ticket !== this.loading) return;
       this.activity.set(a);
       this.skills = a.habilidades ?? [];
       this.initial.set({
@@ -524,7 +537,8 @@ export class ManageActivity implements OnInit {
     if (r) await this.load();
   }
   chooseFile(e: Event) {
-    this.file = (e.target as HTMLInputElement).files?.[0] ?? null;
+    this.fileInput = e.target as HTMLInputElement;
+    this.file = this.fileInput.files?.[0] ?? null;
   }
   async uploadEvidence(v: FormValue) {
     if (!this.file) {
@@ -539,6 +553,7 @@ export class ManageActivity implements OnInit {
     );
     if (r) {
       this.file = null;
+      if (this.fileInput) this.fileInput.value = '';
       await this.load();
     }
   }

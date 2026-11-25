@@ -1,4 +1,5 @@
 import secrets
+from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from backend.app.db import transaction, one, rows
@@ -105,6 +106,11 @@ def issue_certificate(
             409,
             "Requiere actividad finalizada y asistencia efectiva con horas positivas",
         )
+    hours = Decimal(s["horas"]).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    if hours <= 0:
+        raise HTTPException(
+            409, "La asistencia es demasiado breve para certificar 0.01 horas"
+        )
     v = require(
         one(c, "SELECT * FROM voluntario WHERE id_voluntario=:v", v=i["id_voluntario"])
     )
@@ -120,7 +126,7 @@ def issue_certificate(
         v["nombres"] + " " + v["apellidos"],
         a["titulo"],
         org["nombre"],
-        s["horas"],
+        hours,
         code,
         datetime.now(timezone.utc),
     )
@@ -130,7 +136,7 @@ def issue_certificate(
         "INSERT INTO certificado(id_inscripcion,codigo_verificacion,horas_certificadas,archivo_url) VALUES(:i,:code,:h,:k) RETURNING *",
         i=ins_id,
         code=code,
-        h=s["horas"],
+        h=hours,
         k=key,
     )
     notify(

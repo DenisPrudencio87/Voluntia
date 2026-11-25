@@ -1,11 +1,27 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, event
 from backend.app.config import settings
 
 engine = create_engine(
     settings.database_url,
     pool_pre_ping=True,
-    connect_args={"options": "-csearch_path=voluntia,public"},
+    pool_size=5,
+    max_overflow=0,
+    pool_timeout=10,
+    connect_args={"connect_timeout": 10},
 )
+
+
+@event.listens_for(engine, "connect")
+def configure_search_path(connection, record):
+    # SET en autocommit persiste tras rollback y funciona en Session pooler;
+    # no depende de la opción de protocolo startup "options".
+    previous = connection.autocommit
+    connection.autocommit = True
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SET search_path TO voluntia, public")
+    finally:
+        connection.autocommit = previous
 
 
 def transaction():

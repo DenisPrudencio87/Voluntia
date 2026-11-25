@@ -75,7 +75,7 @@ def login(
     response: Response,
     c=Depends(transaction, scope="function"),
 ):
-    limiter.check(request, "login", str(data.correo), limit=10, window=300)
+    limiter.check(request, "login", str(data.correo), limit=10, window=300, ip_limit=50)
     user = one(c, "SELECT * FROM usuario WHERE correo=:e", e=str(data.correo).lower())
     valid = verify_password(user["clave_hash"] if user else dummy_hash, data.clave)
     if not user or not valid or user["estado"] != "activo":
@@ -96,15 +96,22 @@ def me(user=Depends(current_user, scope="function")):
 
 @router.post("/logout")
 def logout(
+    request: Request,
     response: Response,
     c=Depends(transaction, scope="function"),
-    user=Depends(current_user, scope="function"),
 ):
-    execute(
-        c,
-        "UPDATE usuario SET fecha_actualizacion=clock_timestamp() WHERE id_usuario=:u",
-        u=user["id_usuario"],
-    )
+    # Limpiar cookies también si la sesión ya venció; una sesión válida se revoca.
+    try:
+        user = current_user(request, c)
+    except HTTPException as error:
+        if error.status_code not in (401, 403):
+            raise
+    else:
+        execute(
+            c,
+            "UPDATE usuario SET fecha_actualizacion=clock_timestamp() WHERE id_usuario=:u",
+            u=user["id_usuario"],
+        )
     response.delete_cookie("voluntia_session", path="/")
     response.delete_cookie("voluntia_csrf", path="/")
     return {"mensaje": "Sesión cerrada"}
