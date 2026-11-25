@@ -13,6 +13,8 @@ def mine(
     c=Depends(transaction, scope="function"),
     user=Depends(verified_user, scope="function"),
 ):
+    if "organizacion" not in user["roles"]:
+        return []
     return rows(
         c,
         "SELECT o.*,m.cargo FROM organizacion o JOIN organizacion_miembro m USING(id_organizacion) WHERE m.id_usuario=:u AND m.estado='activo' ORDER BY o.id_organizacion",
@@ -54,13 +56,14 @@ def get_org(
     c=Depends(transaction, scope="function"),
     user=Depends(verified_user, scope="function"),
 ):
-    member(c, user, org_id, allow_suspended=True)
+    membership = member(c, user, org_id, allow_suspended=True)
     result = dict(
         require(one(c, "SELECT * FROM organizacion WHERE id_organizacion=:o", o=org_id))
     )
     result["estadisticas"] = one(
         c, "SELECT * FROM fn_estadisticas_organizacion(:o)", o=org_id
     )
+    result["cargo"] = membership["cargo"]
     result["ubicacion"] = (
         one(
             c, "SELECT * FROM ubicacion WHERE id_ubicacion=:u", u=result["id_ubicacion"]
@@ -70,7 +73,7 @@ def get_org(
     )
     result["revisiones"] = rows(
         c,
-        "SELECT accion,detalle,fecha_evento FROM bitacora_evento WHERE entidad='organizacion' AND id_registro=:o AND accion='revision_organizacion' ORDER BY id_evento DESC LIMIT 10",
+        "SELECT accion,detalle,fecha_evento FROM bitacora_evento WHERE entidad='organizacion' AND id_registro=:o AND accion IN ('revision_organizacion','revision_documento') ORDER BY id_evento DESC LIMIT 20",
         o=org_id,
     )
     return result
@@ -170,11 +173,12 @@ def save_member(
         cargo=data.cargo,
         estado=data.estado,
     )
-    execute(
-        c,
-        "INSERT INTO usuario_rol(id_usuario,id_rol) SELECT :u,id_rol FROM rol WHERE nombre='organizacion' ON CONFLICT(id_usuario,id_rol) DO UPDATE SET activo=true",
-        u=target["id_usuario"],
-    )
+    if data.estado == "activo":
+        execute(
+            c,
+            "INSERT INTO usuario_rol(id_usuario,id_rol) SELECT :u,id_rol FROM rol WHERE nombre='organizacion' ON CONFLICT(id_usuario,id_rol) DO UPDATE SET activo=true",
+            u=target["id_usuario"],
+        )
     audit(c, user, "miembro_actualizado", "organizacion", org_id)
     return {"mensaje": "Membresía actualizada"}
 

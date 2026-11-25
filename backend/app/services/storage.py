@@ -5,6 +5,7 @@ from pathlib import Path
 import httpx
 from PIL import Image, UnidentifiedImageError
 from pypdf import PdfReader
+from pypdf.generic import DictionaryObject, ArrayObject, IndirectObject, NameObject
 from fastapi import HTTPException
 from fastapi.responses import Response, RedirectResponse
 from backend.app.config import settings
@@ -12,6 +13,55 @@ from backend.app.config import settings
 KEY_PATTERN = re.compile(
     r"^(documents|evidence|certificates)/[0-9]+/[a-f0-9]{40}\.(pdf|png|jpg|webp)$"
 )
+
+
+def unsafe_pdf(reader):
+    """Inspecciona objetos decodificados: los nombres PDF admiten escapes #xx."""
+    pending = [reader.trailer["/Root"]]
+    seen = set()
+    nodes = 0
+    forbidden = {
+        "/OpenAction",
+        "/AA",
+        "/JavaScript",
+        "/JS",
+        "/Launch",
+        "/EmbeddedFiles",
+        "/EmbeddedFile",
+        "/RichMedia",
+        "/XFA",
+    }
+    while pending:
+        value = pending.pop()
+        key = (
+            ("ref", value.idnum, value.generation)
+            if isinstance(value, IndirectObject)
+            else ("object", id(value))
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        nodes += 1
+        if nodes > 50000:
+            return True
+        if isinstance(value, IndirectObject):
+            pending.append(value.get_object())
+        elif isinstance(value, DictionaryObject):
+            if (
+                forbidden.intersection(value.keys())
+                or str(value.get("/S", ""))
+                in ("/JavaScript", "/Launch", "/SubmitForm", "/ImportData", "/GoToR")
+                or str(value.get("/Type", "")) == "/EmbeddedFile"
+            ):
+                return True
+            pending.extend(value.values())
+        elif isinstance(value, ArrayObject):
+            pending.extend(value)
+        elif isinstance(value, NameObject) and str(value) in forbidden.union(
+            {"/SubmitForm", "/ImportData", "/GoToR"}
+        ):
+            return True
+    return False
 
 
 def validate_file(content, content_type, only_pdf=False):
@@ -27,16 +77,7 @@ def validate_file(content, content_type, only_pdf=False):
             reader = PdfReader(io.BytesIO(content), strict=True)
             if reader.is_encrypted or not 0 < len(reader.pages) <= 100:
                 raise ValueError()
-            if any(
-                token in content
-                for token in (
-                    b"/JavaScript",
-                    b"/JS ",
-                    b"/OpenAction",
-                    b"/EmbeddedFile",
-                    b"/Launch",
-                )
-            ):
+            if unsafe_pdf(reader):
                 raise ValueError()
         except Exception:
             raise HTTPException(
@@ -46,12 +87,21 @@ def validate_file(content, content_type, only_pdf=False):
     if not only_pdf and content_type in ("image/jpeg", "image/png", "image/webp"):
         try:
             image = Image.open(io.BytesIO(content))
+            if (
+                image.format
+                != {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}[
+                    content_type
+                ]
+            ):
+                raise ValueError()
             if image.width * image.height > 20000000:
                 raise ValueError()
             image.verify()
             image = Image.open(io.BytesIO(content)).convert("RGB")
             output = io.BytesIO()
             image.save(output, format="JPEG", quality=88)
+            if len(output.getvalue()) > limit:
+                raise HTTPException(413, "Imagen procesada demasiado grande")
             return output.getvalue(), "jpg", "image/jpeg"
         except (
             ValueError,
@@ -69,22 +119,32 @@ def local_path(key):
     root = Path(settings.storage_path).resolve()
     if not root.is_relative_to(Path.cwd().resolve() / ".local"):
         raise RuntimeError("Storage local debe estar dentro de .local del proyecto")
-    return root / key
+    path = (root / key).resolve()
+    if not path.is_relative_to(root):
+        raise HTTPException(404, "Archivo no encontrado")
+    return path
 
 
 def headers():
-    return {
-        "Authorization": "Bearer " + settings.supabase_service_role_key,
-        "apikey": settings.supabase_service_role_key,
-    }
+    key = settings.supabase_service_role_key
+    result = {"apikey": key}
+    # Las nuevas claves sb_secret_* no son JWT: Supabase rechaza su uso como Bearer.
+    if not key.startswith("sb_secret_"):
+        result["Authorization"] = "Bearer " + key
+    return result
 
 
 def put_object(content, kind, record, extension, media_type):
     key = f"{kind}/{record}/{secrets.token_hex(20)}.{extension}"
     if settings.storage_backend == "local":
         path = local_path(key)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(content)
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(content)
+        except OSError:
+            raise HTTPException(
+                503, "Almacenamiento local temporalmente no disponible"
+            ) from None
     else:
         try:
             response = httpx.post(
@@ -108,8 +168,12 @@ def download(key):
         path = local_path(key)
         if not path.is_file():
             raise HTTPException(404, "Archivo no encontrado")
+        try:
+            content = path.read_bytes()
+        except OSError:
+            raise HTTPException(503, "No se pudo leer el archivo privado") from None
         return Response(
-            path.read_bytes(),
+            content,
             media_type="application/pdf" if key.endswith(".pdf") else "image/jpeg",
             headers={
                 "Content-Disposition": 'attachment; filename="voluntia.'
@@ -126,10 +190,20 @@ def download(key):
         )
         result.raise_for_status()
         signed = result.json()["signedURL"]
-        if not signed.startswith("/object/sign/"):
+        if (
+            not isinstance(signed, str)
+            or signed.split("?", 1)[0]
+            != f"/object/sign/{settings.supabase_bucket}/{key}"
+        ):
             raise ValueError()
-    except (httpx.HTTPError, KeyError, ValueError):
+    except (httpx.HTTPError, KeyError, TypeError, ValueError):
         raise HTTPException(503, "No se pudo obtener una descarga privada") from None
     return RedirectResponse(
-        settings.supabase_url + "/storage/v1" + signed, status_code=303
+        settings.supabase_url
+        + "/storage/v1"
+        + signed
+        + ("&" if "?" in signed else "?")
+        + "download=voluntia."
+        + key.rsplit(".", 1)[1],
+        status_code=303,
     )

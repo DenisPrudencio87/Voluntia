@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { Api, Feedback } from '../services/api';
@@ -15,8 +16,9 @@ import { LabelPipe } from '../components/labels';
         ><i class="bi bi-arrow-left"></i> Todas las actividades</a
       >
       <div class="mt-4 mb-3 d-flex gap-2">
-        <span class="pill">{{ a.categoria }}</span
-        ><span class="pill pill-neutral">{{ a.estado | label }}</span>
+        <span class="pill">{{ a.categoria }}</span><span class="pill pill-neutral">{{
+          a.estado | label
+        }}</span>
       </div>
       <h1>{{ a.titulo }}</h1>
       <a [routerLink]="['/organizaciones', a.id_organizacion]"
@@ -104,6 +106,7 @@ import { LabelPipe } from '../components/labels';
   </section>`,
 })
 export class ActivityDetail implements OnInit {
+  private destroyRef = inject(DestroyRef);
   route = inject(ActivatedRoute);
   api = inject(Api);
   feedback = inject(Feedback);
@@ -120,11 +123,14 @@ export class ActivityDetail implements OnInit {
     },
   ];
   async ngOnInit() {
-    await this.feedback.run(async () =>
-      this.activity.set(
-        await this.api.get<Activity>('/activities/' + this.route.snapshot.paramMap.get('id')),
-      ),
-    );
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const id = params.get('id');
+      this.activity.set(null);
+      void this.feedback.run(async () => {
+        const activity = await this.api.get<Activity>('/activities/' + id);
+        if (this.route.snapshot.paramMap.get('id') === id) this.activity.set(activity);
+      });
+    });
   }
   canApply(a: Activity) {
     return a.estado === 'publicada' && new Date(a.fecha_cierre_inscripcion) > new Date();
@@ -156,17 +162,19 @@ export class ActivityDetail implements OnInit {
   </section>`,
 })
 export class PublicOrganization implements OnInit {
+  private destroyRef = inject(DestroyRef);
   api = inject(Api);
   feedback = inject(Feedback);
   route = inject(ActivatedRoute);
   org = signal<Organization | null>(null);
   async ngOnInit() {
-    await this.feedback.run(async () =>
-      this.org.set(
-        await this.api.get<Organization>(
-          '/organizations/' + this.route.snapshot.paramMap.get('id'),
-        ),
-      ),
-    );
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const id = params.get('id');
+      this.org.set(null);
+      void this.feedback.run(async () => {
+        const org = await this.api.get<Organization>('/organizations/' + id);
+        if (this.route.snapshot.paramMap.get('id') === id) this.org.set(org);
+      });
+    });
   }
 }

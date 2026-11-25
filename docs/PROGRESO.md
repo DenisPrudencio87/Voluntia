@@ -88,3 +88,32 @@ Siguiente acción: PR de Angular/CI, fase 6 de seguridad y pruebas negativas; co
 Estado: implementación y verificación local terminadas; publicación remota no realizada. Docker demo disponible en `http://localhost:8080`, Mailpit exclusivamente `http://localhost:8025`. Credenciales ficticias privadas en `.local/demo-credentials.json`; no mostrarlas al proyectar. Los servidores temporales de tests se detienen al cerrar la verificación.
 
 Siguiente acción que requiere propietario: autorizar específicamente migración/grants y prueba de Storage en la demo Supabase, y posteriormente despliegue manual del servicio Render existente conforme a GUIA_DESPLIEGUE. Configurar secretos por canal privado, no chat. Mantener registro/recuperación remotos cerrados mientras falte correo. Ver INFORME_BRECHAS para límites académicos y producción.
+
+## Auditoría final solicitada — 24/11/2026, Lima (en curso)
+
+- Rama `feature/auditoria-final` desde main `fbdd430`; revisión independiente de implementación, especificaciones y PDF original. Sin modificaciones remotas de Supabase/Render.
+- Se reprodujeron antes de corregir **10 fallos backend y 2 de Angular**: permisos organizativos recuperables, rechazo documental invisible, logout vencido, CSRF Unicode, aceptación SQL sin rol vigente o fuera de plazo real, archivos MIME/PDF activos y error de disco, confirmaciones borradas y concurrencia de Feedback.
+- Corregidos con regresiones. Primera suite ampliada: **49 passed** backend; Angular **7 passed**. Compilación aprobada; advertencia inicial 615.62 kB pendiente de optimización opcional. Ruff con selección F y pip check aprobados. La ejecución exploratoria de Ruff sin selección encontró reglas de estilo adicionales; no se declara aprobada esa configuración.
+- Revisión 0003 mantiene 23 tablas. Probadas migración incremental 0002→0003, idempotencia y exportación SQL seguida de ejecución real en base vacía. SQL original 0001/0002 conservado; adaptado únicamente el cargador Python para soportar `--sql`. Readiness exige head y 23 tablas; runtime recibe lectura de `public.alembic_version`.
+- Navegador ampliado detectó cierre de detalles tras refrescar organización; corregido manteniendo selección y cargo autoritativo. Segundo recorrido: 7/8; único fallo restante de esa ejecución fue límite correcto de reenvío acumulado entre repeticiones, por lo que se reinicia el servidor de pruebas antes de una ejecución completa nueva. No se eliminan límites para pasar pruebas.
+- Docker construido y arrancado en red local propia, `PORT=10000`, SPA/ready HTTP 200, UID 999 sin root. Primer intento con alias host sin TLS rechazado por configuración; corregida la invocación usando el servicio PostgreSQL local `db`.
+- Consultas de seguridad: pip-audit producción y npm audit `--omit=dev` sin vulnerabilidades conocidas en esta consulta. Storage admite claves actuales `sb_secret_*` vía apikey y JWT legacy vía Bearer; adaptador real remoto aún no probado.
+
+Siguiente: cerrar recorridos completos desde servidor limpio, revisión visual, clon limpio Windows, informe con puntuación conservadora, PR y CI del cambio.
+
+### Auditoría: cierre funcional y clon (continuación)
+
+- 8 recorridos ampliados de navegador aprobados en **57.2 s**, ahora con upload/download de evidencia, descarga de certificado, historial, notificaciones y logout. Se detectaron y corrigieron historial no reactivo y confirmación de salida perdida. Capturas escritorio/móvil inspeccionadas; sin overflow global, tablas con scroll interno.
+- Protección de query tokens en uvicorn.access sin ocultar errores ni estados; respuestas inesperadas de firma Storage producen 503. Primera ejecución en clon: **57 pytest passed**, Angular **8 passed**.
+- PR real [#6](https://github.com/DenisPrudencio87/Voluntia/pull/6), rama propia. CI señaló error en expectativa de coordinador del test: lectura documental permitida, escritura/miembros restringidos. Se corrigió el test y su sincronización sobre H2 del detalle; regresión HTTP añadida. No se cambió autorización de producción para el test.
+- Clon limpio desde GitHub, setup nuevo, descubierto/corregido quoting de Node en PowerShell 5 (`10d079d`); repetición correcta. Base nueva, rol LOGIN mínimo, migración 0003/seed con runtime y scripts check/start compilado/start desarrollo/stop aprobados. Smoke con tres roles, archivos, IDOR y recuperación cerrada aprobado. No se reutilizó venv/node_modules/build/.env.
+- Docker final reconstruido desde `e22325c`; falta registrar arranque final y CI tras corregir expectativa. No se integrará PR mientras sus checks no estén verdes.
+
+### Cierre local y nueva autorización — 25/11/2026
+
+- Clon `6bc74fb`: backend **58 passed, 26.24 s**; Angular **8 passed, 2.96 s**; navegador **8 passed, 55.9 s**, escritorio/móvil, con fixtures y servidor del clon. No se repite auditoría general.
+- Docker final arrancado con runtime SQL limitado, Storage local persistido del clon y PORT=10000; UID 999, healthy, smoke de tres roles y archivos aprobado. Se conserva demo local original.
+- Nueva instrucción del propietario autoriza Supabase remoto, runtime, migraciones/grants/Storage/demo y GitHub público después de revisión específica de exposición. Claves existentes no se rotan. Render lo desplegará el propietario, sin CLI ni Auto-Deploy.
+- Entrada `.local/supabase-input.env` presente y gitignored; inspeccionados solo nombres, sin imprimir valores. Destinos privados remotos serán separados de demo local. Generado registro EVIDENCIAS_DESPLIEGUE con resultados pendientes explícitos.
+- Bloqueo operativo: revisión automática de comandos protegidos devolvió límite de uso antes de ejecutar consulta GitHub. No se conoce aún resultado final de CI/estado PR; no integrar ni operar Supabase hasta resolver el control y verificar versión estable. Solicitada intervención para restablecer disponibilidad; preparación documental independiente continuada.
+- Revisión local específica de exposición, sin repetir auditoría: 285 objetos blobs/commits en 17 refs locales, sin coincidencias de las dos credenciales Supabase reales ni patrones de claves y sin rutas privadas versionadas. Valores comparados en memoria, no impresos ni pasados como argumentos Git. Faltan refs remotas actualizadas, PR, logs y artefactos para publicar con seguridad.

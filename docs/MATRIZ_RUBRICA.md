@@ -24,3 +24,9 @@ resultados y commits. El PDF original fue leído y renderizado en sus tres pági
 
 Las evidencias privadas requieren acceso del propietario/docente.
 No confundir workflow definido con una ejecución exitosa ni prueba simulada con API real.
+# Actualización tras auditoría previa al despliegue
+
+La evidencia y evaluación conservadora vigentes están en
+[AUDITORIA_FINAL.md](AUDITORIA_FINAL.md). Se corrigieron defectos que la CI previa
+no detectaba. Se mantienen separados los resultados locales y los pendientes de
+Storage real, URL de Render y sustentación personal; no se acredita 20/20.

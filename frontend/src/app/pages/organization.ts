@@ -230,7 +230,9 @@ export class OrganizationPage implements OnInit {
   editValues = signal<object | null>(null);
   showCreate = false;
   file: File | null = null;
+  private fileInput: HTMLInputElement | null = null;
   page = 1;
+  private selection = 0;
   organizationFields = organizationFields;
   documentFields: Field[] = [
     { key: 'tipo_documento', label: 'Tipo de documento', required: true, min: 2, max: 80 },
@@ -276,34 +278,46 @@ export class OrganizationPage implements OnInit {
     );
     if (o) {
       this.showCreate = false;
-      await this.session.refresh();
+      await this.feedback.run(() => this.session.refresh());
       await this.load();
       await this.select(o.id_organizacion);
     }
   }
   async select(id: number) {
+    const ticket = ++this.selection;
+    if (this.selected()?.id_organizacion !== id) {
+      this.selected.set(null);
+      this.activities.set([]);
+      this.documents.set([]);
+      this.members.set([]);
+    }
+    this.file = null;
+    if (this.fileInput) this.fileInput.value = '';
     await this.feedback.run(async () => {
       const o = await this.api.get<Organization>('/organization/' + id);
-      o.cargo = this.organizations().find((x) => x.id_organizacion === id)?.cargo;
+      if (ticket !== this.selection) return;
+      if (o.estado_verificacion === 'suspendida') {
+        this.selected.set(o);
+        return;
+      }
+      const [a, d, m] = await Promise.all([
+        this.api.get<Activity[]>('/organization/' + id + '/activities'),
+        this.api.get<Document[]>('/organization/' + id + '/documents'),
+        o.cargo === 'administrador'
+          ? this.api.get<Member[]>('/organization/' + id + '/members')
+          : Promise.resolve([]),
+      ]);
+      if (ticket !== this.selection) return;
       this.selected.set(o);
       this.editValues.set({
         ...o,
         lugar: o.ubicacion?.nombre_lugar,
         direccion: o.ubicacion?.direccion,
       });
-      if (o.estado_verificacion === 'suspendida') {
-        this.activities.set([]);
-        return;
-      }
-      const [a, d] = await Promise.all([
-        this.api.get<Activity[]>('/organization/' + id + '/activities'),
-        this.api.get<Document[]>('/organization/' + id + '/documents'),
-      ]);
       this.activities.set(a);
       this.documents.set(d);
       this.page = 1;
-      if (o.cargo === 'administrador')
-        this.members.set(await this.api.get<Member[]>('/organization/' + id + '/members'));
+      this.members.set(m);
     });
   }
   stats(o: Organization) {
@@ -336,7 +350,8 @@ export class OrganizationPage implements OnInit {
     }
   }
   chooseFile(e: Event) {
-    this.file = (e.target as HTMLInputElement).files?.[0] ?? null;
+    this.fileInput = e.target as HTMLInputElement;
+    this.file = this.fileInput.files?.[0] ?? null;
   }
   async upload(v: FormValue) {
     if (!this.file) {

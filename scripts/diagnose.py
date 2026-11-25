@@ -1,6 +1,8 @@
 from sqlalchemy import text
 from backend.app.config import settings
 from backend.app.db import engine
+from alembic.config import Config
+from alembic.script import ScriptDirectory
 
 try:
     with engine.connect() as c:
@@ -13,7 +15,14 @@ try:
             ).scalar()
             == 23
         )
-    print("Configuración válida. PostgreSQL accesible y esquema de 23 tablas presente.")
+        head = ScriptDirectory.from_config(
+            Config("backend/alembic.ini")
+        ).get_current_head()
+        assert (
+            c.execute(text("SELECT version_num FROM public.alembic_version")).scalar()
+            == head
+        )
+    print("Configuración válida. PostgreSQL accesible, 23 tablas y migración vigente.")
     print(
         "Modo:",
         settings.app_env,

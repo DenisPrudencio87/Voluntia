@@ -108,6 +108,12 @@ def scenario(db_engine):
                 correo=f"persona{n}@example.org",
             )["id_usuario"]
             actors.append(u)
+            execute(
+                c,
+                "INSERT INTO usuario_rol(id_usuario,id_rol) SELECT :u,id_rol FROM rol WHERE nombre=:r",
+                u=u,
+                r="organizacion" if n == 0 else "voluntario",
+            )
         org = one(
             c,
             "INSERT INTO organizacion(nombre,descripcion,correo_contacto,estado_verificacion) VALUES('Organización ficticia','Prueba','org@example.org','verificada') RETURNING id_organizacion",

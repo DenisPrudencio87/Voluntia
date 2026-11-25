@@ -82,7 +82,7 @@ import { optional, withLocation } from '../components/domain-fields';
             >
           </div>
         }
-        @if (selected === i.id_inscripcion) {
+        @if (selected() === i.id_inscripcion) {
           <ol class="mt-3 mb-0">
             @for (h of histories(); track $index) {
               <li>
@@ -117,7 +117,7 @@ export class VolunteerPage implements OnInit {
   applications = signal<Application[]>([]);
   profile = signal<Profile | null>(null);
   histories = signal<History[]>([]);
-  selected = 0;
+  selected = signal(0);
   page = 1;
   async ngOnInit() {
     await this.load(1);
@@ -158,7 +158,7 @@ export class VolunteerPage implements OnInit {
       this.histories.set(
         await this.api.get<History[]>('/volunteer/applications/' + i.id_inscripcion + '/history'),
       );
-      this.selected = i.id_inscripcion;
+      this.selected.set(i.id_inscripcion);
     });
   }
 }

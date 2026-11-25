@@ -1,8 +1,10 @@
 import { HttpClient, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, catchError, throwError } from 'rxjs';
+import { SessionState } from './session-state';
 
 export const csrfInterceptor: HttpInterceptorFn = (request, next) => {
+  const state = inject(SessionState);
   const token = document.cookie
     .split('; ')
     .find((c) => c.startsWith('voluntia_csrf='))
@@ -16,7 +18,15 @@ export const csrfInterceptor: HttpInterceptorFn = (request, next) => {
   ) {
     request = request.clone({ setHeaders: { 'X-CSRF-Token': decodeURIComponent(token) } });
   }
-  return next(request);
+  return next(request).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401 && request.url.startsWith('/api/')) {
+        if (state.user()) state.expired.set(true);
+        state.user.set(null);
+      }
+      return throwError(() => error);
+    }),
+  );
 };
 
 @Injectable({ providedIn: 'root' })
@@ -35,16 +45,18 @@ export class Api {
 
 @Injectable({ providedIn: 'root' })
 export class Feedback {
+  private pending = 0;
   error = signal('');
   success = signal('');
   busy = signal(false);
   async run<T>(work: () => Promise<T>, message = ''): Promise<T | undefined> {
     this.error.set('');
     this.success.set('');
+    this.pending++;
     this.busy.set(true);
     try {
       const result = await work();
-      this.success.set(message);
+      if (message) this.success.set(message);
       return result;
     } catch (error) {
       const e = error as HttpErrorResponse;
@@ -62,7 +74,8 @@ export class Feedback {
       );
       return undefined;
     } finally {
-      this.busy.set(false);
+      this.pending--;
+      this.busy.set(this.pending > 0);
     }
   }
 }

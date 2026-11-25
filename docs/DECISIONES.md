@@ -23,3 +23,16 @@ Alcance y arquitectura inicial: documentos activos. Registrar aquí decisiones a
 - Invariantes adicionales en migración 0002 sin tablas nuevas; runtime de privilegios mínimos sin DDL/borrado de usuarios. Usuarios de migración y ejecución separados para remoto, pendiente comprobar pooler autorizado.
 - PowerShell 5 requiere BOM en scripts con texto español; JSON del proxy requiere UTF-8 sin BOM. Los scripts generan proxy según el puerto configurado y registran procesos por PID/hora/ruta para detener solo procesos propios.
 - La demo seed genera claves aleatorias privadas y datos/archivos ficticios, exige base vacía local/demo y registra que no comprobó correo real. Un escenario histórico permite sustentación de asistencia/certificado sin bypass HTTP. Fechas de eventos en UTC; PDF muestra fecha de emisión en Lima.
+# Auditoría previa al despliegue — 24/11/2026
+
+- Autorización posterior, 25/11/2026: conectar y migrar Supabase existente, configurar runtime/Storage/demo y cambiar repo original a público tras revisar secretos. Preservar claves del propietario y demo local; secretos remotos en archivos distintos. El propietario importa render.env y hace deploy manual. No repetir auditoría ni instalación aprobadas.
+
+- Revocar el rol global de organización desactiva también sus membresías activas. Crear otra organización no restaura acceso retirado. Solo activar una membresía concede/reactiva el rol; la inactivación no lo concede.
+- La autorización SQL exige roles activos de organizador y participante además de membresía y estado. Los plazos de aceptación se comparan con `clock_timestamp()` tras adquirir bloqueos, manteniendo orden actividad→inscripción.
+- Migración 0003 aditiva: reemplaza funciones sin cambiar las 23 tablas. SQL publicado de 0001/0002 no se modifica; cargador compartido admite ejecución y exportación offline. La tabla técnica Alembic se fija en public y readiness exige la revisión vigente.
+- Pool SQLAlchemy limitado a cinco conexiones sin overflow; search_path mediante SET al conectar, sin parámetro startup `options`, para Session pooler. TLS obligatorio en conexiones remotas, migrador incluido. Puerto compartido Supabase permitido: Session 5432.
+- Supabase conserva el nombre de configuración `SUPABASE_SERVICE_ROLE_KEY` por compatibilidad; admite nueva clave secreta sb_secret_* solo en apikey, o JWT legacy en Bearer/apikey. Nunca clave privilegiada en Angular.
+- Inspección PDF sobre objetos decodificados, validación MIME/firma de imágenes y límite ASGI de bytes efectivos. Fallos de disco producen 503 controlado. URLs firmadas ligadas al bucket/key esperado y descarga por adjunto.
+- Estado de sesión independiente del cliente HTTP para evitar ciclos de inyección; un 401 expulsa de pantallas protegidas. Logout limpia sesión caducada y cambio de contraseña lleva a acceso. Feedback cuenta operaciones concurrentes y conserva confirmaciones.
+- Login limita diez intentos por cuenta y cincuenta por IP en cinco minutos, para permitir varios evaluadores detrás de una IP sin quitar protección por cuenta. Reenvío/recuperación mantienen sus límites más estrictos.
+- Las pruebas remotas y la sustentación no se presumen. El informe final diferencia evidencia local, contrato de API y evidencia que requiere autorización/demostración del estudiante.

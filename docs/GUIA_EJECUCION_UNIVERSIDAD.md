@@ -7,7 +7,7 @@ probado una computadora física de la universidad ni una base Supabase remota.
 
 1. Confirmar acceso privado al repositorio existente. Llevar un clon actualizado y
    conexión a Internet para descargar dependencias. No cambiar la visibilidad.
-2. Comprobar Node 24, `npm.cmd`, Python 3.13 y Git. Los scripts no instalan software
+2. Comprobar Node 24.15 o posterior de la serie 24 (probado 24.21.0), `npm.cmd`, Python 3.13 y Git. Los scripts no instalan software
    del sistema ni requieren administrador. Si faltan herramientas, usar un equipo
    ya preparado o la URL demo después de su despliegue autorizado.
 3. Elegir PostgreSQL de demostración separado. No utilizar producción para pruebas
@@ -18,8 +18,12 @@ probado una computadora física de la universidad ni una base Supabase remota.
 
 ## Alternativa A: URL HTTPS
 
-Pendiente de autorización y despliegue real. Cuando exista, abrir la URL confirmada
-por el propietario y verificar `/api/health` y `/api/ready` antes del examen.
+URL asignada: **https://voluntia-35ly.onrender.com**. Despliegue manual del
+propietario y comprobación pública pendientes; no se presenta todavía como URL
+funcional. Tras desplegar, abrir `/api/health` y `/api/ready`: ambos deben responder
+200; ready comprueba conexión y revisión Alembic. Abrir `/docs` para FastAPI.
+Acceder con cada una de las tres cuentas ficticias entregadas privadamente y
+recorrer los paneles de la guía de sustentación. No mostrar contraseñas al proyectar.
 Sin correo real: registro y recuperación permanecen cerrados, y se usan cuentas
 ficticias preactivadas. Una URL de Render configurada no constituye evidencia de
 publicación funcional. No inventar una URL ni afirmar que ya está disponible.
@@ -67,6 +71,38 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1 -BackendPo
 Los procesos se registran con PID, hora de creación y ruta. `stop` comprueba esos
 datos y solo detiene los procesos del proyecto. Los logs están en `.runtime`.
 No compartir logs de pruebas que puedan contener datos de cuentas ficticias.
+
+### Configuración portátil privada para USB
+
+Cuando se complete la integración remota, el responsable preparará
+`.local/universidad.env`, con APP_ENV=local, PUBLIC_BASE_URL=http://localhost:8000,
+EMAIL_MODE=disabled, PUBLIC_SIGNUP_ENABLED=false, usuario PostgreSQL runtime con TLS
+y STORAGE_BACKEND=supabase con las variables servidor del bucket demo. Contendrá
+JWT local propio y ninguna contraseña del propietario/migrador ni token de GitHub.
+**El archivo está pendiente de crear y comprobar**; no copiar render.env sin adaptar,
+porque APP_ENV=demo exige HTTPS y cookies Secure, incompatibles con localhost HTTP.
+
+Tras comprobar el repositorio público y recibir ese archivo privado, el recorrido
+mínimo de una PC nueva será:
+
+```powershell
+git clone https://github.com/DenisPrudencio87/Voluntia.git
+cd Voluntia
+# Copiar privadamente universidad.env de la USB a .env en esta carpeta.
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/setup.ps1 -ClosedDemo
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start.ps1 -Built
+# http://localhost:8000 ; Swagger http://localhost:8000/docs
+# Al terminar:
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop.ps1
+```
+
+Setup conserva un .env preexistente; no migra Supabase. Si se desea diagnóstico,
+ejecutar check.ps1 antes de start. Llevar únicamente universidad.env y las claves
+de cuentas ficticias remotas entregadas privadamente; no llevar supabase-input.env,
+backups ni contraseña de propietario. La configuración servidor de Storage es
+secreta: no dejarla en una PC compartida ni publicarla en el repositorio.
+La clonación sin autenticación está pendiente de la revisión de exposición y del
+cambio autorizado a público; verificar su estado en EVIDENCIAS_DESPLIEGUE.
 
 ## Alternativa C: Docker local aislado
 

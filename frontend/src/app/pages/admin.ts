@@ -72,7 +72,7 @@ import { reason } from '../components/domain-fields';
               </div>
             </div>
             <p class="small text-secondary mb-0">{{ o.descripcion }}</p>
-              @if (selectedOrg() === o.id_organizacion) {
+            @if (selectedOrg() === o.id_organizacion) {
               <div class="border rounded p-3 mt-3">
                 <h4 class="h6">Documentos de verificación</h4>
                 @for (d of documents(); track d.id_documento) {
@@ -182,8 +182,9 @@ import { reason } from '../components/domain-fields';
           <div class="border-top py-3 d-flex gap-3 justify-content-between flex-wrap">
             <div>
               <h4 class="h6">{{ a.titulo }}</h4>
-              <span class="pill">{{ a.estado | label }}</span
-              ><span class="small ms-2">{{ a.fecha_inicio | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="pill">{{ a.estado | label }}</span><span class="small ms-2">{{
+                a.fecha_inicio | date: 'dd/MM/yyyy HH:mm'
+              }}</span>
             </div>
             @if (!['finalizada', 'cancelada'].includes(a.estado)) {
               <button class="btn btn-sm btn-outline-danger" (click)="cancel(a)">
@@ -301,6 +302,7 @@ export class AdminPage implements OnInit {
   catalogTarget = signal<CatalogItem | null>(null);
   roleTarget = signal<User | null>(null);
   selectedRoles: string[] = [];
+  private selection = 0;
   roleOptions = ['administrador', 'voluntario', 'organizacion'];
   tabs = [
     { key: 'organizations', label: 'Organizaciones' },
@@ -331,8 +333,11 @@ export class AdminPage implements OnInit {
     ];
   }
   async load(view: string, page = 1) {
+    const ticket = ++this.selection;
     await this.feedback.run(async () => {
-      this.stats.set(await this.api.get<Record<string, number>>('/admin/statistics'));
+      const stats = await this.api.get<Record<string, number>>('/admin/statistics');
+      if (ticket !== this.selection) return;
+      this.stats.set(stats);
       this.view = view;
       this.page = page;
       this.selectedOrg.set(0);
@@ -361,10 +366,15 @@ export class AdminPage implements OnInit {
           : this.events().length;
   }
   async selectOrg(o: Organization) {
+    const ticket = ++this.selection;
+    this.selectedOrg.set(0);
+    this.documents.set([]);
     await this.feedback.run(async () => {
-      this.documents.set(
-        await this.api.get<Document[]>('/admin/organizations/' + o.id_organizacion + '/documents'),
+      const docs = await this.api.get<Document[]>(
+        '/admin/organizations/' + o.id_organizacion + '/documents',
       );
+      if (ticket !== this.selection) return;
+      this.documents.set(docs);
       this.selectedOrg.set(o.id_organizacion);
     });
   }
@@ -376,9 +386,10 @@ export class AdminPage implements OnInit {
       this.api.post('/admin/documents/' + d.id_documento + '/review', { estado: state, motivo }),
     );
     if (r) {
-      this.documents.set(
-        await this.api.get<Document[]>('/admin/organizations/' + id + '/documents'),
-      );
+      await this.feedback.run(async () => {
+        const docs = await this.api.get<Document[]>('/admin/organizations/' + id + '/documents');
+        if (this.selectedOrg() === id) this.documents.set(docs);
+      });
     }
   }
   async orgState(o: Organization, state: string) {

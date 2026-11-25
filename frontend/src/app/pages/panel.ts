@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Session } from '../services/session';
 import { Api, Feedback } from '../services/api';
 import { RecordForm, Field, FormValue } from '../components/record-form';
@@ -74,6 +74,7 @@ export class PanelHome {
   </div>`,
 })
 export class SecurityPage {
+  router = inject(Router);
   api = inject(Api);
   feedback = inject(Feedback);
   session = inject(Session);
@@ -97,9 +98,13 @@ export class SecurityPage {
     },
   ];
   async save(value: FormValue) {
-    await this.feedback.run(async () => {
-      await this.api.post('/auth/password', value);
-      await this.session.refresh();
-    }, 'Contraseña actualizada. Inicia sesión de nuevo.');
+    const result = await this.feedback.run(() =>
+      this.api.post<{ mensaje: string }>('/auth/password', value),
+    );
+    if (result) {
+      this.session.user.set(null);
+      await this.router.navigateByUrl('/acceso');
+      this.feedback.success.set(result.mensaje);
+    }
   }
 }

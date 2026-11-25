@@ -36,6 +36,14 @@
   </nav>
 </header>
 <main id="main" tabindex="-1">
+  @if (session.config().app_env === 'demo') {
+    <div class="container pt-3">
+      <div class="alert alert-info mb-0" role="status">
+        Demostración académica con datos y cuentas ficticios. No representa un servicio habilitado
+        para usuarios reales.
+      </div>
+    </div>
+  }
   <div class="container" aria-live="polite">
     @if (!session.available()) {
       <div class="alert alert-warning mt-3">
