@@ -10,11 +10,31 @@ test_url = os.environ.get(
     "TEST_DATABASE_URL",
     "postgresql+psycopg://voluntia:voluntia_local@127.0.0.1:55432/voluntia_test",
 )
-if not make_url(test_url).database.endswith("_test"):
+if not make_url(test_url).database.endswith("_test") or make_url(test_url).host not in (
+    "localhost",
+    "127.0.0.1",
+    "postgres",
+    "db",
+):
     raise RuntimeError("Pruebas requieren base terminada en _test")
 os.environ["DATABASE_URL"] = test_url
 os.environ["MIGRATION_DATABASE_URL"] = test_url
 os.environ["APP_ENV"] = "test"
+os.environ.update(
+    {
+        "PUBLIC_SIGNUP_ENABLED": "true",
+        "EMAIL_MODE": "smtp",
+        "SMTP_HOST": "127.0.0.1",
+        "SMTP_PORT": "1025",
+        "SMTP_TLS": "false",
+        "SMTP_USER": "",
+        "SMTP_PASSWORD": "",
+        "SMTP_FROM": "no-reply@voluntia.test",
+        "STORAGE_BACKEND": "local",
+        "STORAGE_PATH": ".local/test-storage",
+        "PUBLIC_BASE_URL": "http://localhost:4200",
+    }
+)
 os.environ["JWT_SECRET"] = (
     "test-only-secret-64-characters-not-for-use-in-any-real-environment"
 )
