@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+SQLAlchemy>=2.0,<2.2
+psycopg[binary]
+alembic
+pydantic-settings
+email-validator
+argon2-cffi
+PyJWT
+python-multipart
+httpx
+reportlab
+Pillow

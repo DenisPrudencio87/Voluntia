@@ -7,3 +7,9 @@ Alcance y arquitectura inicial: documentos activos. Registrar aquí decisiones a
 - Repo y servicio Render ya existentes; Auto-Deploy desactivado, no recrear. Autorización separada para migraciones remotas, Storage y despliegue. Sin secretos en Git.
 - Portabilidad: scripts Windows sin Docker para ejecución con base de demo accesible; Docker local para pruebas aisladas. Guía y clon limpio obligatorios.
 - Simplificación y modos de demo son decisiones de implementación, no requisitos textuales adicionales de la rúbrica. No garantizan nota.
+
+## Implementación — 24/11/2026
+- Esquema privado `voluntia`, SQL consumido por Alembic y SQLAlchemy Core con parámetros. Las 23 tablas conservan el diccionario aprobado; Alembic añade solo su tabla técnica.
+- PostgreSQL 17.7 y Mailpit 1.27.8 en Compose local, puertos en loopback y volumen exclusivo. Python efectivo 3.13.15. npm.cmd evita modificar la política de PowerShell.
+- Todos los cambios de ocupación bloquean primero actividad y después inscripción. Historial, bitácora y aviso se generan en trigger para evitar duplicaciones. Las cuatro funciones no son ejecutables por PUBLIC.
+- Dependencias se resolverán desde registros oficiales y se fijarán completas tras instalación. Compatibilidad Angular/Node contrastada en https://angular.dev/reference/versions y metadatos oficiales npm; versión estable actual Angular 22.3.0 compatible con Node 24.21.0.
