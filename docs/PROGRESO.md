@@ -27,4 +27,14 @@ PR #1: https://github.com/DenisPrudencio87/Voluntia/pull/1. CI aprobado en ejecu
 - `python -m pytest backend/tests -q`: **14 passed, 15.12 s** con PostgreSQL y Mailpit reales. Pruebas de SMTP fallido/rollback/reintento, token reutilizado, contraseña anterior, sesión revocada, suspensión, CSRF, rate limit y campos privilegiados.
 - Aviso de deprecación de TestClient/httpx en Starlette; no afecta resultado, pendiente evaluar actualización del adaptador de pruebas.
 
-Siguiente acción: registrar PR de auth, continuar perfiles/organizaciones y ciclo de actividad con pruebas de autorización y fechas.
+PR #2: https://github.com/DenisPrudencio87/Voluntia/pull/2. CI aprobado (45536422012 y 45536428105), diff revisado, integrado en `8ba686b`. Última suite auth/DB: 14 passed en 14.66 s.
+
+## Fase 3 — ciclo funcional
+
+Rama `feature/fase-3-ciclo-voluntariado`. Implementados catálogo público con filtros, perfiles/habilidades, organizaciones/membresías/documentos privados, revisión administrativa, roles/estados/catálogos, actividades/inscripciones/espera/historial, asistencia, impacto, evidencia privada, certificados PDF y verificación pública mínima.
+
+`python -m pytest backend/tests/test_domain.py -q`: **3 passed, 6.73 s**. Recorrido completo comprobado con PostgreSQL y archivos locales, incluyendo certificado leído con pypdf, descarga ajena denegada, duplicación idempotente, inmutabilidad de asistencia certificada, espera/cancelación/promoción e historial. Fixture modifica fechas exclusivamente en `_test` para simular el paso de días; no existe bypass temporal en API. Corregido error PostgreSQL 42P08 de publicación tras identificarlo en pruebas.
+
+Supabase Storage integrado por HTTP (upload y URL firmada 60 s, timeout y error controlado); prueba remota pendiente de autorización. No se ha probado con credenciales remotas ni se afirma lo contrario.
+
+Siguiente acción: ampliar casos negativos/concurrencia, verificar suite completa y PR del ciclo; construir Angular y pruebas de UI/integración.
