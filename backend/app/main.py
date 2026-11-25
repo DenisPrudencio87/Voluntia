@@ -1,19 +1,23 @@
 from pathlib import Path
+import logging
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import DBAPIError
 from backend.app.config import settings
 from backend.app.db import transaction, one
-from backend.app.routers import auth
+from backend.app.routers import auth,public,volunteers,organizations,activities,participation,admin
 from backend.app.security.session import SAFE_METHODS, valid_csrf
 
 app=FastAPI(title='Voluntia API',version='1.0.0',description='Voluntariado y trazabilidad de participación. Autenticación por cookie HttpOnly y CSRF.')
-app.include_router(auth.router,prefix='/api/v1')
+for module in (auth,public,volunteers,organizations,activities,participation,admin):
+    app.include_router(module.router,prefix='/api/v1')
 
 
 @app.middleware('http')
 async def security_headers(request:Request,call_next):
+    if request.method not in SAFE_METHODS and int(request.headers.get('content-length','0') or 0)>11*1024*1024:
+        return JSONResponse(status_code=413,content={'detail':'Archivo demasiado grande'})
     if request.method not in SAFE_METHODS:
         origin=request.headers.get('origin','')
         csrf=request.cookies.get('voluntia_csrf','')
@@ -40,6 +44,8 @@ async def validation_error(request,exc):
 @app.exception_handler(DBAPIError)
 async def database_error(request,exc):
     state=getattr(exc.orig,'sqlstate','')
+    diagnostic=getattr(exc.orig,'diag',None)
+    logging.getLogger(__name__).error('DB %s: %s',state,getattr(diagnostic,'message_primary','unavailable'))
     status=409 if state in ('23505','23514','23503','40001','40P01') else 403 if state=='42501' else 503
     message='La operación entra en conflicto con los datos o las reglas de negocio' if status==409 else 'Operación no permitida' if status==403 else 'Servicio de datos temporalmente no disponible'
     return JSONResponse(status_code=status,content={'detail':message})
