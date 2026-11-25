@@ -39,7 +39,9 @@ El argumento `Bypass` solo afecta ese proceso. Abrir `.env` privadamente en un e
 configurar `DATABASE_URL` con el usuario de ejecución de la demo y TLS cuando la
 base sea remota. Mantener `APP_ENV=local`, `STORAGE_BACKEND=local`,
 `EMAIL_MODE=disabled`, `PUBLIC_SIGNUP_ENABLED=false` para esta ejecución local
-cerrada. No copiar las claves de Storage al frontend. El secreto JWT se genera
+cerrada. Si la base de demo conserva referencias de Supabase Storage, configurar
+`STORAGE_BACKEND=supabase` y sus variables servidor autorizadas; usar storage local
+solo con sus archivos ficticios locales correspondientes. No copiar las claves de Storage al frontend. El secreto JWT se genera
 localmente. `setup` no sobrescribe un `.env` existente.
 
 Si la BD remota todavía no tiene el esquema, detener ese paso: aplicar migraciones

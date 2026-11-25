@@ -75,4 +75,16 @@ Siguiente acción: PR de Angular/CI, fase 6 de seguridad y pruebas negativas; co
 - Backup `pg_dump -Fc`, restauración `pg_restore --no-owner --no-acl --exit-on-error` en base exclusiva `voluntia_restore_test`: **23 tablas y 3 usuarios**, original intacta.
 - Creadas guías de ejecución universitaria, despliegue, sustentación, seguridad/operación y matriz. Proveedor correo, URL HTTPS y Storage remoto pendientes.
 
-Siguiente acción exacta: commit del hito final, integrar main con el fix de scope sin reescribir historial, subir rama/PR, prueba completa desde clon limpio con setup/check/start/stop y CI verde. Registrar commit, resultados y enlaces antes de cerrar trabajo local.
+## Clon limpio y evidencia final — 24/11/2026, Lima
+
+- Clon real desde GitHub privado en `.local/clean-clone`, rama final, commit de código `4637e142f1c4bf027b03632af6b1dfddf98d75e8`. Sin reutilizar venv, node_modules, build ni `.env` del directorio original. Se reutilizó únicamente el navegador descargado como dependencia de pruebas.
+- `setup.ps1 -ClosedDemo`: venv nueva Python 3.13.15, pip desde lockfile, npm ci, Angular build aprobados. Configuración nueva con secreto aleatorio. Se detectó necesidad de fixtures independientes de `.env`; corregido para forzar SMTP local/Storage de test y rechazar bases de tests remotas.
+- Bases exclusivas nuevas `voluntia_clone_demo` y `voluntia_clean_test`, sin tocar la demo original. Migración local vacía 0001→0002 aprobada y seed ficticio completo creado desde clon.
+- `check.ps1`, `start.ps1 -BackendPort 8012 -Built`, smoke HTTP y `stop.ps1`: aprobados. SPA/readiness 200, login y descarga de documento propios, recuperación cerrada 403. `git status --short` del clon sin cambios versionados. Solo detenido proceso propio.
+- Pytest desde clon: **28 passed, 21.06 s**. Angular desde clon: **5 passed, 3 archivos**. Playwright desde clon: **4 passed, 29.4 s**, escritorio/móvil, incluyendo ciclo completo hasta verificación de certificado con PostgreSQL y archivos del clon.
+- PR final [#5](https://github.com/DenisPrudencio87/Voluntia/pull/5). CI del código `4637e14`: [45543601332](https://github.com/DenisPrudencio87/Voluntia/actions/runs/45543601332) y [45543606686](https://github.com/DenisPrudencio87/Voluntia/actions/runs/45543606686), jobs backend/frontend/integration aprobados. Estado de integración y checks del último commit documental se consulta en el PR.
+- Sin patrones de claves privadas/GitHub/Supabase detectados por `scripts.check_secrets` en versionados; revisión manual y `.gitignore` comprobados. No se publican `.env`, claves de demo, archivos privados ni logs de fixtures.
+
+Estado: implementación y verificación local terminadas; publicación remota no realizada. Docker demo disponible en `http://localhost:8080`, Mailpit exclusivamente `http://localhost:8025`. Credenciales ficticias privadas en `.local/demo-credentials.json`; no mostrarlas al proyectar. Los servidores temporales de tests se detienen al cerrar la verificación.
+
+Siguiente acción que requiere propietario: autorizar específicamente migración/grants y prueba de Storage en la demo Supabase, y posteriormente despliegue manual del servicio Render existente conforme a GUIA_DESPLIEGUE. Configurar secretos por canal privado, no chat. Mantener registro/recuperación remotos cerrados mientras falte correo. Ver INFORME_BRECHAS para límites académicos y producción.
