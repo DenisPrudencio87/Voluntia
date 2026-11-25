@@ -1,6 +1,6 @@
 # Auditoría técnica y académica previa al despliegue
 
-Fecha: 24/11/2026, America/Lima. Revisión independiente desde main `fbdd430`, rama
+Inicio: 24/11/2026; cierre de pruebas locales: 25/11/2026, America/Lima. Revisión independiente desde main `fbdd430`, rama
 `feature/auditoria-final`. La rúbrica original de [RUBRICA.pdf](RUBRICA.pdf) prevalece.
 Se contrastaron AGENTS, PROMPT_MAESTRO y documentos activos; `referencia/` no se
 utilizó como especificación. Este informe distingue implementación, comprobación
@@ -149,7 +149,7 @@ no expuesto a PostgREST; revocación de PUBLIC/anon/authenticated en migración.
 
 | Comprobación | Resultado observado en esta auditoría |
 |---|---|
-| Pytest completo, PostgreSQL 17 aislado | Primera suite **52 passed**, 26.64 s; ampliada posteriormente a 58 casos, cierre abajo |
+| Pytest completo, PostgreSQL 17 aislado | **58 passed**, 26.24 s desde clon limpio; detalle del cierre abajo |
 | Angular unitario | **8 passed**, 4 archivos; 3 pruebas nuevas |
 | Angular build | Éxito; initial 615.64 kB, aviso frente al presupuesto 500 kB; no se elevó presupuesto para ocultarlo |
 | Playwright, escritorio y móvil | **8 passed**, 57.2 s; incluye archivos privados, historial, notificaciones y logout |
@@ -460,6 +460,19 @@ los resultados anteriores no deben interpretarse como despliegue remoto.
   `stop.ps1`, arranque desarrollo 8015/4215 y proxy `/api/ready` 200, parada de ambos
   procesos: aprobados. Archivo existente/nuevo y revisión descargables, ajeno404,
   visitante401, recuperación demo403; permisos DDL/DELETE/historial denegados.
-- Desde venv del clon: **57 passed**, 29.93 s, antes del último test de coordinador;
-  Angular **8 passed**, 2.96 s, build 615.64 kB. La última suite y CI se registran al
-  terminar. `git status --short` del clon vacío tras scripts.
+- Desde venv del clon, commit `6bc74fb8cad8d598e3b34be148525125d0f9c076`:
+  **58 pytest passed**, 26.24 s; Angular **8 passed**, 2.96 s;
+  Playwright **8 passed**, 55.9 s, escritorio/móvil con base y servidor propios del
+  clon. Build 615.64 kB. Se reutilizó únicamente el navegador de pruebas descargado.
+  `git status --short` del clon vacío tras scripts.
+- Imagen `voluntia-audit-final` reconstruida y arrancada con PORT=10000, usuario
+  uid/gid 999, rol SQL limitado y Storage local del clon. Smoke HTTP completo
+  aprobado también contra el contenedor; HEALTHCHECK healthy.
+- Los checks del SHA final requieren consulta antes de integrar PR #6. La consulta
+  intentada no se ejecutó: el servicio de revisión automática devolvió límite de
+  uso. No se integra con resultados desconocidos ni se elude ese control.
+- Autorización posterior del propietario, 25/11/2026: Supabase remoto y cambio a
+  GitHub público permitidos bajo revisión de secretos. Render será desplegado
+  manualmente por el propietario. Este permiso no cambia los resultados históricos
+  locales ni acredita operaciones remotas todavía no realizadas; seguimiento en
+  [EVIDENCIAS_DESPLIEGUE.md](EVIDENCIAS_DESPLIEGUE.md).

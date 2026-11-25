@@ -25,6 +25,8 @@ Alcance y arquitectura inicial: documentos activos. Registrar aquí decisiones a
 - La demo seed genera claves aleatorias privadas y datos/archivos ficticios, exige base vacía local/demo y registra que no comprobó correo real. Un escenario histórico permite sustentación de asistencia/certificado sin bypass HTTP. Fechas de eventos en UTC; PDF muestra fecha de emisión en Lima.
 # Auditoría previa al despliegue — 24/11/2026
 
+- Autorización posterior, 25/11/2026: conectar y migrar Supabase existente, configurar runtime/Storage/demo y cambiar repo original a público tras revisar secretos. Preservar claves del propietario y demo local; secretos remotos en archivos distintos. El propietario importa render.env y hace deploy manual. No repetir auditoría ni instalación aprobadas.
+
 - Revocar el rol global de organización desactiva también sus membresías activas. Crear otra organización no restaura acceso retirado. Solo activar una membresía concede/reactiva el rol; la inactivación no lo concede.
 - La autorización SQL exige roles activos de organizador y participante además de membresía y estado. Los plazos de aceptación se comparan con `clock_timestamp()` tras adquirir bloqueos, manteniendo orden actividad→inscripción.
 - Migración 0003 aditiva: reemplaza funciones sin cambiar las 23 tablas. SQL publicado de 0001/0002 no se modifica; cargador compartido admite ejecución y exportación offline. La tabla técnica Alembic se fija en public y readiness exige la revisión vigente.

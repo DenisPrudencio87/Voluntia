@@ -4,6 +4,10 @@ Plataforma académica de voluntariado. Angular + Bootstrap, FastAPI y PostgreSQL
 Aplicación local implementada con paneles de voluntariado, organización y administración.
 Estado y evidencia verificable: [docs/PROGRESO.md](docs/PROGRESO.md).
 No se ha publicado en Render ni migrado Supabase remoto.
+Finalización autorizada y estado de cada integración:
+[docs/EVIDENCIAS_DESPLIEGUE.md](docs/EVIDENCIAS_DESPLIEGUE.md).
+URL asignada, pendiente de despliegue y comprobación pública:
+https://voluntia-35ly.onrender.com
 
 ## Desarrollo local
 
@@ -73,7 +77,9 @@ Los lockfiles incluyen dependencias transitivas.
 - [Despliegue preparado](docs/GUIA_DESPLIEGUE.md), [seguridad y operación](docs/SEGURIDAD_Y_OPERACION.md).
 - [Matriz de rúbrica](docs/MATRIZ_RUBRICA.md), [sustentación](docs/GUIA_SUSTENTACION.md), [ejecución universitaria](docs/GUIA_EJECUCION_UNIVERSIDAD.md).
 
-El despliegue HTTPS y Storage real requieren autorización específica posterior.
+Supabase remoto y publicación segura del repositorio fueron autorizados el 25/11/2026;
+su ejecución y evidencia se registran en EVIDENCIAS_DESPLIEGUE. El propietario realizará
+el despliegue manual de Render; no se activa Auto-Deploy.
 El proveedor de correo real sigue pendiente. No se garantiza una calificación.
 
 Los secretos viven en `.env` (ignorado). `.env.example` contiene únicamente

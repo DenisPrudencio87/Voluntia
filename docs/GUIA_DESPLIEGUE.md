@@ -4,9 +4,11 @@ Procedimiento detallado actualizado y límites de evidencia en
 [AUDITORIA_FINAL.md](AUDITORIA_FINAL.md), incluidas claves sb_secret_*, exportación
 de migraciones y selección Save only de Render.
 
-No se ejecutaron migraciones remotas, creación de buckets ni despliegue. Auto-Deploy
-permanece fuera de las acciones realizadas. Se requiere autorización específica
-del propietario para ejecutar esta guía contra servicios remotos.
+No se ejecutaron todavía migraciones remotas, creación de buckets ni despliegue.
+El propietario autorizó Supabase y publicación segura de GitHub el 25/11/2026;
+el despliegue Render lo realizará manualmente. Auto-Deploy permanece desactivado.
+Consultar [EVIDENCIAS_DESPLIEGUE](EVIDENCIAS_DESPLIEGUE.md) antes de dar un paso por
+completado. No se cambian claves existentes del propietario.
 
 ## Variables implementadas
 
