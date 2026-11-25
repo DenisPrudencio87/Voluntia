@@ -1,8 +1,27 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    model_validator,
+    field_validator,
+)
 
 
 class Input(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("*", mode="before")
+    @classmethod
+    def strip_text_fields(cls, value, info):
+        if isinstance(value, str) and info.field_name not in (
+            "clave",
+            "clave_actual",
+            "confirmacion",
+            "token",
+        ):
+            return value.strip()
+        return value
 
 
 class Login(Input):
@@ -14,10 +33,10 @@ class Register(Login):
     clave: str = Field(min_length=12, max_length=128)
     confirmacion: str = Field(min_length=12, max_length=128)
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def matching_passwords(self):
         if self.clave != self.confirmacion:
-            raise ValueError('Las contraseñas no coinciden')
+            raise ValueError("Las contraseñas no coinciden")
         return self
 
 
@@ -33,10 +52,10 @@ class ResetPassword(TokenInput):
     clave: str = Field(min_length=12, max_length=128)
     confirmacion: str = Field(min_length=12, max_length=128)
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def matching_passwords(self):
         if self.clave != self.confirmacion:
-            raise ValueError('Las contraseñas no coinciden')
+            raise ValueError("Las contraseñas no coinciden")
         return self
 
 
@@ -45,8 +64,8 @@ class ChangePassword(Input):
     clave: str = Field(min_length=12, max_length=128)
     confirmacion: str = Field(min_length=12, max_length=128)
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def matching_passwords(self):
         if self.clave != self.confirmacion:
-            raise ValueError('Las contraseñas no coinciden')
+            raise ValueError("Las contraseñas no coinciden")
         return self

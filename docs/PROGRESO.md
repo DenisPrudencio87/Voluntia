@@ -61,3 +61,30 @@ Dockerfile multietapa construido (`docker compose --profile app build app`). Ima
 Scripts Windows check/start -Built/stop probados con Python y base accesible: versiones y 23 tablas correctas, HTTP 200 en puerto propio 8010, detenido solo proceso registrado. Aplicación ejecutada sin Docker como dependencia del proceso (PostgreSQL local provenía de contenedor); no es evidencia de una PC universitaria ni de Supabase remoto.
 
 Siguiente acción: PR de Angular/CI, fase 6 de seguridad y pruebas negativas; completar setup/start desarrollo, clon limpio, guías y matriz. Publicación/Storage remoto continúan pendientes de autorización específica.
+
+## Fases 6–9 — seguridad, operación y documentación
+
+- PR #4 detectó carrera real: 201 antes del commit, GET inmediato 404. Artefactos de CI 45541184011 confirmaron la secuencia. Corregido con dependencias de alcance function en commit `1e0cb25`. CI 45541698923 y 45541705244: backend/frontend/integration aprobados; diff revisado, PR integrado en `90d75a5`.
+- Migración 0002 aplicada solo local: invariantes adicionales, certificado inmutable, grants privados; siguen 23 tablas. Rol NOLOGIN equivalente a runtime probado sin DDL/DELETE de usuarios y con aceptación SQL funcional. No se aplicó ningún grant ni migración remota.
+- Última suite: `python -m pytest backend/tests -q`: **28 passed, 21.86 s**. Incluye agregación con múltiples evidencias, documento nuevo fuerza revisión, suspensión/plazos y configuración cerrada. `ruff check --select F backend scripts`: aprobado. Formato Python/Angular aplicado para legibilidad. Aviso de deprecación HTTPX/TestClient conservado; no afecta resultado.
+- `npm.cmd test -- --watch=false`: **5 passed, 3 archivos**. `npm.cmd run build`: exitoso, advertencia ~615 kB iniciales registrada. Auditorías `pip_audit -r backend/requirements.txt` y `npm audit --omit=dev`: sin vulnerabilidades conocidas reportadas en la consulta realizada.
+- Rúbrica renderizada completa (3 páginas) e inspeccionada. Certificado ficticio renderizado: una página, texto/acentos legibles. PDF fecha de emisión en Lima, eventos almacenados UTC.
+- Windows: setup exitoso con dependencias fijadas; check/start -Built/stop y start de desarrollo con puertos 8011/4211 aprobados, `/` y `/api/ready` por proxy 200. Detectado y corregido BOM en JSON generado por PowerShell 5. Solo procesos propios detenidos. No se cambió ninguna política global.
+- Docker imagen final reconstruida; usuario no root, health/ready/SPA 200 y HEALTHCHECK healthy. Smoke HTTP de archivos existente/nuevo contra contenedor: upload/download autorizado y revisión documental aprobados; visitante 401. Storage local compartido con host en carpeta ignorada. Esto no es prueba Supabase Storage real.
+- Demo ficticia local creada en base inicialmente vacía: tres cuentas con claves aleatorias en `.local/demo-credentials.json`, manifiesto privado, organizaciones/documentos ficticios y actividades futuras/histórica. No se imprimen credenciales ni se simula correo real. Seed rechaza base con usuarios y producción.
+- Backup `pg_dump -Fc`, restauración `pg_restore --no-owner --no-acl --exit-on-error` en base exclusiva `voluntia_restore_test`: **23 tablas y 3 usuarios**, original intacta.
+- Creadas guías de ejecución universitaria, despliegue, sustentación, seguridad/operación y matriz. Proveedor correo, URL HTTPS y Storage remoto pendientes.
+
+## Clon limpio y evidencia final — 24/11/2026, Lima
+
+- Clon real desde GitHub privado en `.local/clean-clone`, rama final, commit de código `4637e142f1c4bf027b03632af6b1dfddf98d75e8`. Sin reutilizar venv, node_modules, build ni `.env` del directorio original. Se reutilizó únicamente el navegador descargado como dependencia de pruebas.
+- `setup.ps1 -ClosedDemo`: venv nueva Python 3.13.15, pip desde lockfile, npm ci, Angular build aprobados. Configuración nueva con secreto aleatorio. Se detectó necesidad de fixtures independientes de `.env`; corregido para forzar SMTP local/Storage de test y rechazar bases de tests remotas.
+- Bases exclusivas nuevas `voluntia_clone_demo` y `voluntia_clean_test`, sin tocar la demo original. Migración local vacía 0001→0002 aprobada y seed ficticio completo creado desde clon.
+- `check.ps1`, `start.ps1 -BackendPort 8012 -Built`, smoke HTTP y `stop.ps1`: aprobados. SPA/readiness 200, login y descarga de documento propios, recuperación cerrada 403. `git status --short` del clon sin cambios versionados. Solo detenido proceso propio.
+- Pytest desde clon: **28 passed, 21.06 s**. Angular desde clon: **5 passed, 3 archivos**. Playwright desde clon: **4 passed, 29.4 s**, escritorio/móvil, incluyendo ciclo completo hasta verificación de certificado con PostgreSQL y archivos del clon.
+- PR final [#5](https://github.com/DenisPrudencio87/Voluntia/pull/5). CI del código `4637e14`: [45543601332](https://github.com/DenisPrudencio87/Voluntia/actions/runs/45543601332) y [45543606686](https://github.com/DenisPrudencio87/Voluntia/actions/runs/45543606686), jobs backend/frontend/integration aprobados. Estado de integración y checks del último commit documental se consulta en el PR.
+- Sin patrones de claves privadas/GitHub/Supabase detectados por `scripts.check_secrets` en versionados; revisión manual y `.gitignore` comprobados. No se publican `.env`, claves de demo, archivos privados ni logs de fixtures.
+
+Estado: implementación y verificación local terminadas; publicación remota no realizada. Docker demo disponible en `http://localhost:8080`, Mailpit exclusivamente `http://localhost:8025`. Credenciales ficticias privadas en `.local/demo-credentials.json`; no mostrarlas al proyectar. Los servidores temporales de tests se detienen al cerrar la verificación.
+
+Siguiente acción que requiere propietario: autorizar específicamente migración/grants y prueba de Storage en la demo Supabase, y posteriormente despliegue manual del servicio Render existente conforme a GUIA_DESPLIEGUE. Configurar secretos por canal privado, no chat. Mantener registro/recuperación remotos cerrados mientras falte correo. Ver INFORME_BRECHAS para límites académicos y producción.

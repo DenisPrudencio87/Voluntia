@@ -1,5 +1,24 @@
 name: voluntia-local
 services:
+  app:
+    profiles: [app]
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://voluntia:voluntia_local@db:5432/voluntia
+      SMTP_HOST: mailpit
+      PUBLIC_BASE_URL: http://localhost:8080
+      STORAGE_PATH: .local/storage
+      PORT: 8000
+    ports:
+      - "127.0.0.1:8080:8000"
+    volumes:
+      - ./.local/storage:/app/.local/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
   db:
     image: postgres:17.7-alpine
     environment:

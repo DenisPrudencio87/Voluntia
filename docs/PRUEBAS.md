@@ -38,3 +38,72 @@ Usar PostgreSQL descartable; jamás ejecutar limpieza contra producción. Mailpi
 | OPS07 | Correo real en producción (pendiente de proveedor) | Entrega real, verificación y recuperación probadas antes de habilitar registro público |
 
 Registrar comando, duración si disponible, fecha, éxito/fallo y evidencia. No inventar resultados. Añadir pruebas cuando se detecte una regresión. Usar Playwright y Pytest; TestSprite opcional únicamente si ya disponible y sin transmitir datos sensibles, no es requisito.
+
+## Ejecución implementada
+
+Las fixtures migran mediante Alembic y solo limpian `voluntia_test` (sufijo `_test`
+obligatorio). La base de demo `voluntia` no se limpia. No ejecutar Pytest mientras
+Playwright usa esa misma base de test; CI utiliza contenedores independientes por job.
+No se usa SQLite. Mailpit debe estar disponible para la suite de autenticación.
+
+```powershell
+docker compose up -d --wait db mailpit
+# Solo la primera vez:
+docker compose exec -T db createdb -U voluntia voluntia_test
+.\.venv\Scripts\python.exe -m pytest backend/tests -q
+cd frontend
+npm.cmd test -- --watch=false
+npm.cmd run build
+cd ..
+```
+
+Playwright integrado contra el build servido por FastAPI, en una terminal exclusiva:
+
+```powershell
+$env:TEST_DATABASE_URL='postgresql+psycopg://voluntia:voluntia_local@127.0.0.1:55432/voluntia_test'
+$env:DATABASE_URL=$env:TEST_DATABASE_URL
+$env:MIGRATION_DATABASE_URL=$env:TEST_DATABASE_URL
+$env:PUBLIC_BASE_URL='http://localhost:8000'
+.\.venv\Scripts\python.exe -m alembic -c backend/alembic.ini upgrade head
+.\.venv\Scripts\python.exe -m scripts.e2e_seed
+# Si ya existen solo cuentas de ese fixture: e2e_seed --rotate, sin borrar datos.
+.\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+```
+
+En otra terminal:
+
+```powershell
+cd frontend
+$env:E2E_BASE_URL='http://localhost:8000'
+$env:TEST_DATABASE_URL='postgresql+psycopg://voluntia:voluntia_local@127.0.0.1:55432/voluntia_test'
+$env:PLAYWRIGHT_BROWSERS_PATH='../.local/ms-playwright'
+npx.cmd --cache ../.local/npm-cache playwright install chromium
+npx.cmd --cache ../.local/npm-cache playwright test
+```
+
+Si falta `.env`, primero ejecutar setup para generar secreto local. Los valores
+anteriores son exclusivamente credenciales locales ficticias de Compose. Para CI,
+el workflow configura todos los valores efímeros y usa Python por `E2E_PYTHON`.
+El reloj E2E es un script que se niega a operar fuera de base local `_test`; no hay
+endpoint de bypass en aplicación. Tras finalizar, detener el servidor propio.
+
+## Trazabilidad de pruebas
+
+| IDs | Archivos / comprobación |
+|---|---|
+| DB01–DB06 | `test_database.py`: 23 tablas/29 FK, correo, conexiones concurrentes, rollback posterior e inyectado dentro del trigger, constraints y actor/historial. |
+| DB07 | `test_aggregation.py`, `test_domain.py`: varias inscripciones/evidencias, asistencia y horas/beneficiarios sin multiplicación. |
+| API01–API03, API12–API13 | `test_auth.py`, `test_security.py`: SMTP real Mailpit, token único, sesión/revocación, suspensión, roles, CSRF, rate limit, fallo SMTP y reintento. |
+| API04–API10, API14–API15 | `test_domain.py`, `test_security.py`: propiedad, revisión, plazos/habilidades, espera/cancelación/promoción, asistencia/certificado, suspensión y último admin. |
+| API11 | `test_storage.py`, recorrido domain: firmas/tamaño/reencodificación y descarga ajena denegada. |
+| UI01 | `record-form.spec.ts`: campos, confirmación, fechas, conservación de edición; `guards/auth.spec.ts` y `services/api.spec.ts`. |
+| UI02, E2E01–E2E02 | `frontend/e2e/journey.spec.ts`: catálogo y ciclo completo, tamaños 1280×800 y 360×800; sin overflow general. |
+| OPS01 | Build/run Docker local, health/ready/SPA y HEALTHCHECK healthy. |
+| OPS02 | Jobs backend, frontend e integración de CI; URLs de ejecuciones en PROGRESO/MATRIZ_RUBRICA. |
+| OPS04–OPS05 | Mailpit y bloqueo de registro/recuperación en tests y validadores Settings. |
+| OPS06 | Scripts setup/check/start/stop Windows, prueba desde clon limpio; registrar commit/resultado en PROGRESO. |
+| OPS03, OPS07 | PENDIENTES: URL remota, persistencia/Storage real y correo real tras autorización/proveedor. |
+
+`test_supabase_adapter_contract_and_failure` usa MockTransport de test para verificar
+contrato y errores HTTP; no prueba Storage remoto. Archivos/credenciales E2E y logs
+quedan ignorados; no publicar snapshots de credenciales de cuentas ficticias.
