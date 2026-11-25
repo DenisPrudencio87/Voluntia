@@ -46,6 +46,8 @@ La primera ejecución de las nuevas regresiones sobre el código previo produjo
 | A25 media | Repr de Settings podía incluir secretos | Campos privados excluidos de repr y valores ocultos en errores; regresión |
 | A26 media | Historial recibido por HTTP 200 no aparecía al abrirlo en Angular sin zonas | Selección convertida en signal; prueba de navegador exige sus tres eventos |
 | A27 baja | Confirmación de logout se perdía al cargar el inicio | Regreso a acceso y cierre de menú; prueba de navegador exige confirmación persistente |
+| A28 alta | Access log de Uvicorn podía conservar query con token de verificación/recuperación | Filtro elimina query y conserva ruta/estado; regresión de log, errores y bitácora siguen activos |
+| A29 media | Respuesta JSON inesperada al firmar archivo podía causar TypeError/500 | Respuestas null/lista/tipo incorrecto o URL externa producen 503, cuatro regresiones de contrato |
 
 Además: se controla el error de recarga documental administrativa y se descartan
 selecciones antiguas; no se bloquea erróneamente al modificar un administrador ya

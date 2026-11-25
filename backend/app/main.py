@@ -17,12 +17,14 @@ from backend.app.routers import (
 )
 from backend.app.security.session import SAFE_METHODS, valid_csrf
 from backend.app.security.body_limit import BodyLimitMiddleware
+from backend.app.security.logging import RedactAccessQuery
 from alembic.config import Config
 from alembic.script import ScriptDirectory
 
 REQUIRED_REVISION = ScriptDirectory.from_config(
     Config(str(Path(__file__).resolve().parents[1] / "alembic.ini"))
 ).get_current_head()
+logging.getLogger("uvicorn.access").addFilter(RedactAccessQuery())
 
 app = FastAPI(
     title="Voluntia API",

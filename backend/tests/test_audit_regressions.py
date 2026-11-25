@@ -393,3 +393,21 @@ def test_login_limit_separates_account_and_shared_ip():
             request, "login", "cuenta1@example.org", limit=10, window=300, ip_limit=50
         )
     assert error.value.status_code == 429
+
+
+def test_access_log_redacts_query_tokens_without_hiding_status():
+    import logging
+    from backend.app.security.logging import RedactAccessQuery
+
+    record = logging.LogRecord(
+        "uvicorn.access",
+        logging.INFO,
+        "",
+        0,
+        '%s - "%s %s HTTP/%s" %d',
+        ("127.0.0.1", "GET", "/verificar?token=private-fictitious-token", "1.1", 200),
+        None,
+    )
+    assert RedactAccessQuery().filter(record)
+    assert "private-fictitious-token" not in record.getMessage()
+    assert "/verificar" in record.getMessage() and "200" in record.getMessage()
