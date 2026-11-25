@@ -9,7 +9,7 @@ router=APIRouter(tags=['Actividades e inscripciones'])
 
 
 @router.get('/organization/{org_id}/activities')
-def list_owned(org_id:int,page:int=Query(1,ge=1),c=Depends(transaction),user=Depends(verified_user)):
+def list_owned(org_id:int,page:int=Query(1,ge=1),c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id,allow_suspended=True)
     return rows(c,'SELECT *,fn_cupos_disponibles(id_actividad) cupos_disponibles FROM actividad WHERE id_organizacion=:o ORDER BY id_actividad DESC LIMIT 20 OFFSET :offset',o=org_id,offset=(page-1)*20)
 
@@ -28,7 +28,7 @@ def save_skills(c,activity,skills):
 
 
 @router.post('/organization/{org_id}/activities',status_code=201)
-def create(org_id:int,data:Activity,c=Depends(transaction),user=Depends(verified_user)):
+def create(org_id:int,data:Activity,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id)
     values=activity_values(c,data)
     a=one(c,"""INSERT INTO actividad(id_organizacion,id_categoria,id_ubicacion,titulo,descripcion,fecha_inicio,fecha_fin,fecha_cierre_inscripcion,cupo_maximo,modalidad,imagen_portada_url)
@@ -39,7 +39,7 @@ def create(org_id:int,data:Activity,c=Depends(transaction),user=Depends(verified
 
 
 @router.get('/manage/activities/{activity_id}')
-def get_owned(activity_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def get_owned(activity_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     a=dict(owned_activity(c,user,activity_id,lock=False))
     a['habilidades']=rows(c,'SELECT * FROM actividad_habilidad WHERE id_actividad=:a',a=activity_id)
     a['ubicacion']=one(c,'SELECT * FROM ubicacion WHERE id_ubicacion=:u',u=a['id_ubicacion']) if a['id_ubicacion'] else None
@@ -47,9 +47,9 @@ def get_owned(activity_id:int,c=Depends(transaction),user=Depends(verified_user)
 
 
 @router.put('/manage/activities/{activity_id}')
-def update(activity_id:int,data:Activity,c=Depends(transaction),user=Depends(verified_user)):
+def update(activity_id:int,data:Activity,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     a=owned_activity(c,user,activity_id)
-    if a['estado'] not in ('borrador','publicada','cerrada') or datetime.now(timezone.utc)>=a['fecha_inicio']:
+    if a['estado'] not in ('borrador','publicada','cerrada') or (a['estado']!='borrador' and datetime.now(timezone.utc)>=a['fecha_inicio']):
         raise HTTPException(409,'Esta actividad ya no admite edición')
     if a['estado']!='borrador' and data.fecha_inicio<=datetime.now(timezone.utc):
         raise HTTPException(409,'Mantén el inicio en el futuro')
@@ -65,12 +65,12 @@ def update(activity_id:int,data:Activity,c=Depends(transaction),user=Depends(ver
 
 
 @router.post('/manage/activities/{activity_id}/state')
-def state(activity_id:int,data:ActivityState,c=Depends(transaction),user=Depends(verified_user)):
+def state(activity_id:int,data:ActivityState,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     return change_activity_state(c,user,owned_activity(c,user,activity_id),data.estado,data.motivo)
 
 
 @router.post('/activities/{activity_id}/applications',status_code=201)
-def apply(activity_id:int,data:Application,request:Request,c=Depends(transaction),user=Depends(verified_user)):
+def apply(activity_id:int,data:Application,request:Request,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     limiter.check(request,'apply',str(user['id_usuario']),limit=10)
     if 'voluntario' not in user['roles']:
         raise HTTPException(403,'Se requiere rol Voluntario')
@@ -93,7 +93,7 @@ def apply(activity_id:int,data:Application,request:Request,c=Depends(transaction
 
 
 @router.get('/manage/activities/{activity_id}/applications')
-def applicants(activity_id:int,page:int=Query(1,ge=1),c=Depends(transaction),user=Depends(verified_user)):
+def applicants(activity_id:int,page:int=Query(1,ge=1),c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     owned_activity(c,user,activity_id,lock=False)
     return rows(c,"""SELECT i.*,v.nombres,v.apellidos,e.nombre estado,s.estado asistencia,s.hora_entrada,s.hora_salida,ce.id_certificado
     FROM inscripcion i JOIN voluntario v USING(id_voluntario) JOIN estado_inscripcion e USING(id_estado)
@@ -102,7 +102,7 @@ def applicants(activity_id:int,page:int=Query(1,ge=1),c=Depends(transaction),use
 
 
 @router.post('/applications/{ins_id}/state')
-def application_state(ins_id:int,data:ApplicationState,c=Depends(transaction),user=Depends(verified_user)):
+def application_state(ins_id:int,data:ApplicationState,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     stub=require(one(c,'SELECT id_actividad,id_voluntario FROM inscripcion WHERE id_inscripcion=:i',i=ins_id))
     a=require(one(c,'SELECT * FROM actividad WHERE id_actividad=:a FOR UPDATE',a=stub['id_actividad']))
     i=require(one(c,'SELECT i.*,e.nombre estado FROM inscripcion i JOIN estado_inscripcion e USING(id_estado) WHERE i.id_inscripcion=:i FOR UPDATE OF i',i=ins_id))

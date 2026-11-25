@@ -50,7 +50,7 @@ def set_session(response,user):
     set_csrf(response)
 
 
-def current_user(request: Request, c=Depends(transaction)):
+def current_user(request: Request, c=Depends(transaction, scope="function")):
     try:
         claims=jwt.decode(request.cookies.get('voluntia_session',''),settings.jwt_secret,algorithms=['HS256'],options={'require':['exp','iat','sub','ver']})
         user=one(c,'SELECT id_usuario,correo,email_verificado,estado,fecha_actualizacion FROM usuario WHERE id_usuario=:u',u=int(claims['sub']))
@@ -66,13 +66,13 @@ def current_user(request: Request, c=Depends(transaction)):
     return user
 
 
-def verified_user(user=Depends(current_user)):
+def verified_user(user=Depends(current_user, scope="function")):
     if not user['email_verificado']:
         raise HTTPException(403,'Verifica tu correo antes de continuar')
     return user
 
 
-def admin_user(user=Depends(verified_user)):
+def admin_user(user=Depends(verified_user, scope="function")):
     if 'administrador' not in user['roles']:
         raise HTTPException(403,'Acceso reservado a administración')
     return user
