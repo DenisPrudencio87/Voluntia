@@ -1,5 +1,5 @@
 # Plan de pruebas obligatorio
-Usar PostgreSQL descartable; jamás ejecutar limpieza contra producción. Adaptadores fake para correo/storage solo en test. Datos ficticios, fechas relativas a reloj de prueba; separar fixtures de seeds demo. CI debe fallar si falla cualquier prueba requerida.
+Usar PostgreSQL descartable; jamás ejecutar limpieza contra producción. Mailpit para pruebas integradas locales de correo; adaptadores fake para pruebas unitarias y almacenamiento local aislado en desarrollo. Datos ficticios, fechas relativas a reloj de prueba; separar fixtures de seeds demo. CI debe fallar si falla cualquier prueba requerida.
 
 | ID | Escenario | Resultado esperado |
 |---|---|---|
@@ -31,6 +31,10 @@ Usar PostgreSQL descartable; jamás ejecutar limpieza contra producción. Adapta
 | E2E02 | Recorrido móvil 360px y escritorio 1280px | Sin overflow horizontal general, navegación usable |
 | OPS01 | Docker build y smoke test | /, /api/health, /api/ready funcionales |
 | OPS02 | CI en PR | Build frontend y tests backend/DB exitosos, E2E según workflow |
-| OPS03 | URL real, correo y storage reales, reinicio | HTTPS, persistencia, operaciones reales verificadas tras autorización |
+| OPS03 | URL real, Storage real, reinicio | HTTPS, persistencia y operaciones reales tras autorización |
+| OPS04 | Mailpit: verificación y recuperación de cuenta local | Mensajes y tokens funcionales, sin correo a usuarios reales |
+| OPS05 | Demo remota sin correo | Registro/recuperación por correo deshabilitados, sin bypass; cuentas ficticias provisionadas de manera segura |
+| OPS06 | Clon limpio Windows, scripts setup/start/check/stop | Instalación reproducible, puertos comprobados, solo procesos propios detenidos; sin Docker para ejecución con BD de demo accesible |
+| OPS07 | Correo real en producción (pendiente de proveedor) | Entrega real, verificación y recuperación probadas antes de habilitar registro público |
 
 Registrar comando, duración si disponible, fecha, éxito/fallo y evidencia. No inventar resultados. Añadir pruebas cuando se detecte una regresión. Usar Playwright y Pytest; TestSprite opcional únicamente si ya disponible y sin transmitir datos sensibles, no es requisito.

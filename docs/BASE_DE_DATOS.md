@@ -32,7 +32,6 @@ Posibles roles:
 - Administrador
 - Voluntario
 - Organización
-- Moderador
 
 ### USUARIO_ROL
 Resuelve la relación muchos a muchos entre USUARIO y ROL.
@@ -462,3 +461,6 @@ Trigger de historial de inscripción (creación y cambios de estado) con actor o
 
 ## Normalización y evidencias
 1FN: valores atómicos, sin listas de roles/habilidades. 2FN: atributos de tablas puente dependen de ambas FK. 3FN: actividad referencia organización, categoría y ubicación; no copia sus nombres. Documentar dependencias funcionales y claves candidatas de las 23 tablas, justificar cualquier agregado persistido (impacto es un resultado documentado y horas agregadas deben mantenerse consistentes). Generar ERD con cardinalidades reales y diccionario físico. Proveer consultas SELECT, JOIN, GROUP BY y llamadas a funciones. Alembic es la única fuente ejecutable de cambios; schema.sql/functions.sql/triggers.sql serán exportaciones o archivos consumidos por migraciones, no una instalación paralela.
+
+## Nota de entrega
+No se modifica la estructura de 23 tablas por el cambio de proveedor de correo. TOKEN_CUENTA y email_verificado se mantienen para los flujos reales. Las cuentas ficticias preactivadas de demo se provisionan de forma controlada, sin simular verificación de correo real ni habilitar bypass para registro público.

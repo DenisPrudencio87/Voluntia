@@ -1,2 +1,4 @@
 # Progreso
-Estado inicial: documentación preparada; implementación no iniciada. Todas las fases y pruebas pendientes.
+Estado inicial revisado 24/11/2026: documentación actualizada; implementación aún no iniciada. Herramientas locales verificadas por el propietario, Docker hello-world correcto; repositorio privado existente y sincronizado en 0ed76f1 antes de esta actualización. Supabase Session pooler seleccionado, conexión aún no probada. Render clona repositorio; primer deploy falló por ausencia de Dockerfile; Auto-Deploy desactivado. Correo real pendiente. Ninguna prueba de aplicación, CI, Storage real ni URL funcional se ha ejecutado/verificado todavía.
+
+Siguiente tarea: fase 0, inventario, git status, proteger secretos, plan breve y comenzar implementación local. Registrar por fase comandos, resultados, archivos, ramas/PR, bloqueos y próxima tarea. No confundir preparación con implementación.
