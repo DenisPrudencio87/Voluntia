@@ -9,12 +9,12 @@ router=APIRouter(prefix='/organization',tags=['Organizaciones'])
 
 
 @router.get('')
-def mine(c=Depends(transaction),user=Depends(verified_user)):
+def mine(c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     return rows(c,"SELECT o.*,m.cargo FROM organizacion o JOIN organizacion_miembro m USING(id_organizacion) WHERE m.id_usuario=:u AND m.estado='activo' ORDER BY o.id_organizacion",u=user['id_usuario'])
 
 
 @router.post('',status_code=201)
-def create(data:Organization,c=Depends(transaction),user=Depends(verified_user)):
+def create(data:Organization,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     values=data.model_dump(exclude={'ubicacion'})
     values['id_ubicacion']=location(c,data.ubicacion)
     org=one(c,'INSERT INTO organizacion(nombre,descripcion,correo_contacto,telefono,sitio_web,logo_url,id_ubicacion) VALUES(:nombre,:descripcion,:correo_contacto,:telefono,:sitio_web,:logo_url,:id_ubicacion) RETURNING *',**values)
@@ -25,7 +25,7 @@ def create(data:Organization,c=Depends(transaction),user=Depends(verified_user))
 
 
 @router.get('/{org_id}')
-def get_org(org_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def get_org(org_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id,allow_suspended=True)
     result=dict(require(one(c,'SELECT * FROM organizacion WHERE id_organizacion=:o',o=org_id)))
     result['estadisticas']=one(c,'SELECT * FROM fn_estadisticas_organizacion(:o)',o=org_id)
@@ -35,7 +35,7 @@ def get_org(org_id:int,c=Depends(transaction),user=Depends(verified_user)):
 
 
 @router.put('/{org_id}')
-def update(org_id:int,data:Organization,c=Depends(transaction),user=Depends(verified_user)):
+def update(org_id:int,data:Organization,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id,admin=True)
     values=data.model_dump(exclude={'ubicacion'})
     values['id_ubicacion']=location(c,data.ubicacion)
@@ -45,13 +45,13 @@ def update(org_id:int,data:Organization,c=Depends(transaction),user=Depends(veri
 
 
 @router.get('/{org_id}/members')
-def members(org_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def members(org_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id,admin=True)
     return rows(c,'SELECT m.*,u.correo FROM organizacion_miembro m JOIN usuario u USING(id_usuario) WHERE m.id_organizacion=:o ORDER BY m.id_usuario',o=org_id)
 
 
 @router.put('/{org_id}/members')
-def save_member(org_id:int,data:Membership,c=Depends(transaction),user=Depends(verified_user)):
+def save_member(org_id:int,data:Membership,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     # Serializa cambios de miembros para proteger al último administrador.
     require(one(c,'SELECT id_organizacion FROM organizacion WHERE id_organizacion=:o FOR UPDATE',o=org_id))
     member(c,user,org_id,admin=True)
@@ -67,13 +67,13 @@ def save_member(org_id:int,data:Membership,c=Depends(transaction),user=Depends(v
 
 
 @router.get('/{org_id}/documents')
-def documents(org_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def documents(org_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id)
     return rows(c,'SELECT id_documento,tipo_documento,numero_documento,estado_revision,fecha_subida,fecha_revision FROM documento_organizacion WHERE id_organizacion=:o ORDER BY id_documento DESC',o=org_id)
 
 
 @router.post('/{org_id}/documents',status_code=201)
-def upload_document(org_id:int,tipo_documento:str=Form(min_length=2,max_length=80),numero_documento:str=Form(min_length=2,max_length=80),file:UploadFile=File(),c=Depends(transaction),user=Depends(verified_user)):
+def upload_document(org_id:int,tipo_documento:str=Form(min_length=2,max_length=80),numero_documento:str=Form(min_length=2,max_length=80),file:UploadFile=File(),c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     require(one(c,'SELECT id_organizacion FROM organizacion WHERE id_organizacion=:o FOR UPDATE',o=org_id))
     member(c,user,org_id,admin=True)
     content,ext,mime=validate_file(file.file.read(10*1024*1024+1),file.content_type,only_pdf=True)
@@ -85,7 +85,7 @@ def upload_document(org_id:int,tipo_documento:str=Form(min_length=2,max_length=8
 
 
 @router.get('/{org_id}/documents/{doc_id}/file')
-def document_file(org_id:int,doc_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def document_file(org_id:int,doc_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     member(c,user,org_id)
     doc=require(one(c,'SELECT archivo_url FROM documento_organizacion WHERE id_documento=:d AND id_organizacion=:o',d=doc_id,o=org_id))
     return download(doc['archivo_url'])

@@ -19,7 +19,7 @@ def manage_inscription(c,user,ins_id):
 
 
 @router.put('/manage/applications/{ins_id}/attendance')
-def attendance(ins_id:int,data:Attendance,c=Depends(transaction),user=Depends(verified_user)):
+def attendance(ins_id:int,data:Attendance,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     i,a=manage_inscription(c,user,ins_id)
     row=one(c,"""INSERT INTO asistencia(id_inscripcion,estado,hora_entrada,hora_salida,observacion)
     VALUES(:i,:estado,:hora_entrada,:hora_salida,:observacion) ON CONFLICT(id_inscripcion) DO UPDATE
@@ -29,13 +29,13 @@ def attendance(ins_id:int,data:Attendance,c=Depends(transaction),user=Depends(ve
 
 
 @router.get('/manage/activities/{activity_id}/impact')
-def get_impact(activity_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def get_impact(activity_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     owned_activity(c,user,activity_id,lock=False)
     return one(c,'SELECT * FROM impacto_actividad WHERE id_actividad=:a',a=activity_id)
 
 
 @router.put('/manage/activities/{activity_id}/impact')
-def impact(activity_id:int,data:Impact,c=Depends(transaction),user=Depends(verified_user)):
+def impact(activity_id:int,data:Impact,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     a=owned_activity(c,user,activity_id)
     if a['estado']!='finalizada':
         raise HTTPException(409,'Finaliza la actividad antes de registrar impacto')
@@ -48,7 +48,7 @@ def impact(activity_id:int,data:Impact,c=Depends(transaction),user=Depends(verif
 
 
 @router.post('/manage/applications/{ins_id}/certificate',status_code=201)
-def issue_certificate(ins_id:int,data:CertificateConsent,c=Depends(transaction),user=Depends(verified_user)):
+def issue_certificate(ins_id:int,data:CertificateConsent,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     i,a=manage_inscription(c,user,ins_id)
     existing=one(c,'SELECT * FROM certificado WHERE id_inscripcion=:i',i=ins_id)
     if existing:
@@ -68,19 +68,19 @@ def issue_certificate(ins_id:int,data:CertificateConsent,c=Depends(transaction),
 
 
 @router.get('/certificates/private/{certificate_id}/file')
-def download_certificate(certificate_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def download_certificate(certificate_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     certificate=require(one(c,'SELECT ce.archivo_url FROM certificado ce JOIN inscripcion i USING(id_inscripcion) JOIN voluntario v USING(id_voluntario) WHERE ce.id_certificado=:ce AND v.id_usuario=:u',ce=certificate_id,u=user['id_usuario']))
     return download(certificate['archivo_url'])
 
 
 @router.get('/manage/activities/{activity_id}/evidence')
-def evidence(activity_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def evidence(activity_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     owned_activity(c,user,activity_id,lock=False)
     return rows(c,'SELECT id_evidencia,tipo,descripcion,fecha_subida FROM evidencia_actividad WHERE id_actividad=:a ORDER BY id_evidencia DESC',a=activity_id)
 
 
 @router.post('/manage/activities/{activity_id}/evidence',status_code=201)
-def upload_evidence(activity_id:int,descripcion:str=Form(min_length=5,max_length=1000),file:UploadFile=File(),c=Depends(transaction),user=Depends(verified_user)):
+def upload_evidence(activity_id:int,descripcion:str=Form(min_length=5,max_length=1000),file:UploadFile=File(),c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     owned_activity(c,user,activity_id)
     content,ext,mime=validate_file(file.file.read(10*1024*1024+1),file.content_type)
     key=put_object(content,'evidence',activity_id,ext,mime)
@@ -90,7 +90,7 @@ def upload_evidence(activity_id:int,descripcion:str=Form(min_length=5,max_length
 
 
 @router.get('/manage/activities/{activity_id}/evidence/{evidence_id}/file')
-def download_evidence(activity_id:int,evidence_id:int,c=Depends(transaction),user=Depends(verified_user)):
+def download_evidence(activity_id:int,evidence_id:int,c=Depends(transaction, scope="function"),user=Depends(verified_user, scope="function")):
     owned_activity(c,user,activity_id,lock=False)
     result=require(one(c,'SELECT archivo_url FROM evidencia_actividad WHERE id_evidencia=:e AND id_actividad=:a',e=evidence_id,a=activity_id))
     return download(result['archivo_url'])
