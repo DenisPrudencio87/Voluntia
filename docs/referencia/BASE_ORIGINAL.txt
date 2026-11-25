@@ -1,0 +1,876 @@
+# CONTEXTO MAESTRO DE BASE DE DATOS — VOLUNTIA
+
+Quiero que utilices la siguiente información como contexto oficial de mi proyecto de base de datos.
+
+IMPORTANTE:
+
+- Trabaja únicamente con la base de datos descrita aquí.
+- No inventes modificaciones estructurales sin indicarlas explícitamente.
+- Si propones una mejora, diferénciala claramente del modelo actual.
+- El proyecto debe utilizar una base de datos relacional.
+- El diseño debe estar normalizado como mínimo hasta la Tercera Forma Normal (3FN).
+- Deben identificarse claramente entidades, atributos, claves primarias, claves foráneas y relaciones.
+- El diseño está pensado para una aplicación web pública real y debe ser escalable.
+- No incluyas información sobre frontend, Angular, Bootstrap u otras tecnologías salvo que yo lo solicite.
+
+---
+
+# 1. PROYECTO
+
+Nombre:
+
+**Voluntia — Plataforma de gestión de voluntariado y actividades de impacto social**
+
+Voluntia es una plataforma destinada a conectar voluntarios con organizaciones que realizan actividades de beneficio social.
+
+El sistema debe permitir gestionar:
+
+- cuentas de usuario;
+- roles;
+- perfiles de voluntarios;
+- organizaciones;
+- miembros de organizaciones;
+- verificación de organizaciones;
+- categorías sociales;
+- habilidades;
+- actividades de voluntariado;
+- requisitos de habilidades;
+- inscripciones;
+- historial de estados;
+- asistencia;
+- favoritos;
+- resultados e impacto;
+- evidencias;
+- certificados;
+- valoraciones;
+- notificaciones;
+- conversaciones;
+- mensajes;
+- auditoría de acciones.
+
+---
+
+# 2. MÓDULOS DE LA BASE DE DATOS
+
+## Seguridad y cuentas
+
+- USUARIO
+- ROL
+- USUARIO_ROL
+- TOKEN_CUENTA
+
+## Personas y organizaciones
+
+- VOLUNTARIO
+- ORGANIZACION
+- ORGANIZACION_MIEMBRO
+- ORGANIZACION_CATEGORIA
+- DOCUMENTO_ORGANIZACION
+- UBICACION
+
+## Voluntariado
+
+- CATEGORIA
+- HABILIDAD
+- VOLUNTARIO_HABILIDAD
+- ACTIVIDAD
+- ACTIVIDAD_HABILIDAD
+
+## Participación
+
+- ESTADO_INSCRIPCION
+- INSCRIPCION
+- HISTORIAL_INSCRIPCION
+- ASISTENCIA
+- FAVORITO
+
+## Resultados e impacto
+
+- IMPACTO_ACTIVIDAD
+- EVIDENCIA_ACTIVIDAD
+- CERTIFICADO
+- VALORACION
+
+## Comunicación
+
+- NOTIFICACION
+- CONVERSACION
+- CONVERSACION_PARTICIPANTE
+- MENSAJE
+
+## Auditoría
+
+- BITACORA_EVENTO
+
+---
+
+# 3. TABLAS
+
+## USUARIO
+
+Representa una cuenta del sistema.
+
+Campos:
+
+- id_usuario — PK
+- correo — UNIQUE, NOT NULL
+- clave_hash — NOT NULL
+- email_verificado
+- estado
+- fecha_registro
+- ultimo_acceso
+- fecha_actualizacion
+
+La contraseña nunca debe almacenarse directamente. Se debe almacenar únicamente su hash.
+
+---
+
+## ROL
+
+Define los diferentes roles disponibles.
+
+Campos:
+
+- id_rol — PK
+- nombre — UNIQUE, NOT NULL
+- descripcion
+
+Posibles roles:
+
+- Administrador
+- Voluntario
+- Organización
+- Moderador
+
+---
+
+## USUARIO_ROL
+
+Resuelve la relación muchos a muchos entre USUARIO y ROL.
+
+Campos:
+
+- id_usuario — PK, FK → USUARIO
+- id_rol — PK, FK → ROL
+- fecha_asignacion
+- activo
+
+Clave primaria compuesta:
+
+(id_usuario, id_rol)
+
+Un usuario puede poseer uno o varios roles.
+
+---
+
+## TOKEN_CUENTA
+
+Gestiona tokens relacionados con funciones de seguridad.
+
+Campos:
+
+- id_token — PK
+- id_usuario — FK → USUARIO
+- tipo
+- token_hash
+- fecha_creacion
+- fecha_expiracion
+- fecha_uso
+
+Posibles tipos:
+
+- VERIFICAR_EMAIL
+- RECUPERAR_PASSWORD
+
+---
+
+## UBICACION
+
+Almacena ubicaciones reutilizables.
+
+Campos:
+
+- id_ubicacion — PK
+- nombre_lugar
+- direccion
+- latitud
+- longitud
+
+Puede ser utilizada por voluntarios, organizaciones y actividades.
+
+---
+
+## VOLUNTARIO
+
+Representa el perfil de una persona voluntaria.
+
+Campos:
+
+- id_voluntario — PK
+- id_usuario — FK → USUARIO, UNIQUE
+- nombres
+- apellidos
+- telefono
+- fecha_nacimiento
+- biografia
+- foto_url
+- id_ubicacion — FK → UBICACION
+- fecha_actualizacion
+
+Cada voluntario está asociado a una cuenta de usuario.
+
+---
+
+## ORGANIZACION
+
+Representa una organización que publica actividades sociales.
+
+Campos:
+
+- id_organizacion — PK
+- nombre
+- descripcion
+- telefono
+- correo_contacto
+- sitio_web
+- logo_url
+- id_ubicacion — FK → UBICACION
+- estado_verificacion
+- fecha_registro
+
+Una organización puede tener varios miembros administradores.
+
+---
+
+## ORGANIZACION_MIEMBRO
+
+Relaciona usuarios con organizaciones.
+
+Campos:
+
+- id_organizacion — PK, FK → ORGANIZACION
+- id_usuario — PK, FK → USUARIO
+- cargo
+- estado
+- fecha_ingreso
+
+Clave primaria compuesta:
+
+(id_organizacion, id_usuario)
+
+Permite que una organización sea administrada por varias personas.
+
+---
+
+## DOCUMENTO_ORGANIZACION
+
+Almacena información relacionada con documentos utilizados para verificar una organización.
+
+Campos:
+
+- id_documento — PK
+- id_organizacion — FK → ORGANIZACION
+- tipo_documento
+- numero_documento
+- archivo_url
+- estado_revision
+- fecha_subida
+- fecha_revision
+
+Posibles estados:
+
+- Pendiente
+- Aprobado
+- Rechazado
+
+---
+
+## CATEGORIA
+
+Clasifica actividades y áreas sociales.
+
+Campos:
+
+- id_categoria — PK
+- nombre — UNIQUE
+- descripcion
+- icono
+- activo
+
+Ejemplos:
+
+- Medio ambiente
+- Educación
+- Salud
+- Bienestar animal
+- Ayuda humanitaria
+- Adultos mayores
+- Inclusión social
+
+---
+
+## ORGANIZACION_CATEGORIA
+
+Relaciona organizaciones con las categorías en las que trabajan.
+
+Campos:
+
+- id_organizacion — PK, FK → ORGANIZACION
+- id_categoria — PK, FK → CATEGORIA
+
+Clave primaria compuesta:
+
+(id_organizacion, id_categoria)
+
+Una organización puede trabajar en varias áreas.
+
+---
+
+## HABILIDAD
+
+Catálogo de habilidades relevantes para voluntariado.
+
+Campos:
+
+- id_habilidad — PK
+- nombre — UNIQUE
+- descripcion
+- activo
+
+Ejemplos:
+
+- Primeros auxilios
+- Enseñanza
+- Logística
+- Fotografía
+- Programación
+- Cocina
+- Idiomas
+
+---
+
+## VOLUNTARIO_HABILIDAD
+
+Relaciona voluntarios con sus habilidades.
+
+Campos:
+
+- id_voluntario — PK, FK → VOLUNTARIO
+- id_habilidad — PK, FK → HABILIDAD
+- nivel
+- verificada
+
+Clave primaria compuesta:
+
+(id_voluntario, id_habilidad)
+
+Un voluntario puede tener varias habilidades y una habilidad puede pertenecer a muchos voluntarios.
+
+---
+
+## ACTIVIDAD
+
+Representa una actividad o campaña de voluntariado.
+
+Campos:
+
+- id_actividad — PK
+- id_organizacion — FK → ORGANIZACION
+- id_categoria — FK → CATEGORIA
+- id_ubicacion — FK → UBICACION
+- titulo
+- descripcion
+- fecha_publicacion
+- fecha_inicio
+- fecha_fin
+- fecha_cierre_inscripcion
+- cupo_maximo
+- modalidad
+- estado
+- imagen_portada_url
+- fecha_actualizacion
+
+Posibles modalidades:
+
+- Presencial
+- Virtual
+- Híbrida
+
+Posibles estados:
+
+- Borrador
+- Publicada
+- Inscripciones cerradas
+- En curso
+- Finalizada
+- Cancelada
+
+Una organización puede crear muchas actividades.
+
+Una categoría puede contener muchas actividades.
+
+---
+
+## ACTIVIDAD_HABILIDAD
+
+Define las habilidades solicitadas para una actividad.
+
+Campos:
+
+- id_actividad — PK, FK → ACTIVIDAD
+- id_habilidad — PK, FK → HABILIDAD
+- nivel_requerido
+- obligatoria
+
+Clave primaria compuesta:
+
+(id_actividad, id_habilidad)
+
+Permite posteriormente implementar sistemas de recomendación entre voluntarios y actividades.
+
+---
+
+## ESTADO_INSCRIPCION
+
+Catálogo de estados posibles de una inscripción.
+
+Campos:
+
+- id_estado — PK
+- nombre — UNIQUE
+- descripcion
+
+Ejemplos:
+
+- Pendiente
+- Aceptada
+- Rechazada
+- Cancelada
+- Lista de espera
+- Finalizada
+
+---
+
+## INSCRIPCION
+
+Representa la inscripción de un voluntario en una actividad.
+
+Campos:
+
+- id_inscripcion — PK
+- id_actividad — FK → ACTIVIDAD
+- id_voluntario — FK → VOLUNTARIO
+- id_estado — FK → ESTADO_INSCRIPCION
+- fecha_inscripcion
+- motivacion
+- observacion
+- fecha_actualizacion
+
+Debe existir:
+
+UNIQUE(id_actividad, id_voluntario)
+
+Esto impide que un voluntario se inscriba varias veces en la misma actividad.
+
+---
+
+## HISTORIAL_INSCRIPCION
+
+Conserva el historial de cambios realizados sobre una inscripción.
+
+Campos:
+
+- id_historial — PK
+- id_inscripcion — FK → INSCRIPCION
+- id_estado — FK → ESTADO_INSCRIPCION
+- id_usuario_responsable — FK → USUARIO
+- fecha_cambio
+- comentario
+
+Ejemplo:
+
+Pendiente → Aceptada → Cancelada
+
+El historial no debe sobrescribirse.
+
+---
+
+## FAVORITO
+
+Permite que un voluntario guarde actividades.
+
+Campos:
+
+- id_voluntario — PK, FK → VOLUNTARIO
+- id_actividad — PK, FK → ACTIVIDAD
+- fecha_guardado
+
+Clave primaria compuesta:
+
+(id_voluntario, id_actividad)
+
+---
+
+## ASISTENCIA
+
+Registra la participación efectiva de un voluntario.
+
+Campos:
+
+- id_asistencia — PK
+- id_inscripcion — FK → INSCRIPCION, UNIQUE
+- estado
+- hora_entrada
+- hora_salida
+- observacion
+
+Posibles estados:
+
+- Asistió
+- No asistió
+- Justificado
+
+Solo debe existir una asistencia por inscripción.
+
+---
+
+## IMPACTO_ACTIVIDAD
+
+Almacena los resultados sociales de una actividad.
+
+Campos:
+
+- id_impacto — PK
+- id_actividad — FK → ACTIVIDAD, UNIQUE
+- beneficiarios_estimados
+- horas_voluntariado
+- descripcion_impacto
+- fecha_registro
+
+Ejemplos de datos:
+
+- personas beneficiadas;
+- horas de voluntariado;
+- resultados obtenidos;
+- impacto generado.
+
+---
+
+## EVIDENCIA_ACTIVIDAD
+
+Almacena evidencias asociadas a las actividades.
+
+Campos:
+
+- id_evidencia — PK
+- id_actividad — FK → ACTIVIDAD
+- id_usuario — FK → USUARIO
+- tipo
+- archivo_url
+- descripcion
+- fecha_subida
+
+Los archivos físicos no deben guardarse directamente en la BD; se debe almacenar principalmente su URL o referencia.
+
+Puede almacenar referencias a:
+
+- fotografías;
+- vídeos;
+- PDFs;
+- documentos;
+- otros archivos.
+
+---
+
+## CERTIFICADO
+
+Representa un certificado obtenido por participar en una actividad.
+
+Campos:
+
+- id_certificado — PK
+- id_inscripcion — FK → INSCRIPCION, UNIQUE
+- codigo_verificacion — UNIQUE
+- horas_certificadas
+- fecha_emision
+- archivo_url
+
+Cada certificado debe poder verificarse mediante un código único.
+
+---
+
+## VALORACION
+
+Permite que un voluntario valore una actividad en la que participó.
+
+Campos:
+
+- id_valoracion — PK
+- id_inscripcion — FK → INSCRIPCION, UNIQUE
+- puntuacion
+- comentario
+- fecha_registro
+
+La relación con INSCRIPCION permite comprobar que la persona realmente estuvo inscrita.
+
+---
+
+## NOTIFICACION
+
+Gestiona notificaciones internas.
+
+Campos:
+
+- id_notificacion — PK
+- id_usuario — FK → USUARIO
+- titulo
+- mensaje
+- tipo
+- url_destino
+- leida
+- fecha_creacion
+- fecha_lectura
+
+Ejemplos:
+
+- inscripción aceptada;
+- actividad próxima;
+- cambio de ubicación;
+- certificado disponible;
+- actividad cancelada.
+
+---
+
+## CONVERSACION
+
+Representa una conversación interna.
+
+Campos:
+
+- id_conversacion — PK
+- fecha_creacion
+- fecha_actualizacion
+
+---
+
+## CONVERSACION_PARTICIPANTE
+
+Relaciona usuarios con conversaciones.
+
+Campos:
+
+- id_conversacion — PK, FK → CONVERSACION
+- id_usuario — PK, FK → USUARIO
+- fecha_union
+
+Clave primaria compuesta:
+
+(id_conversacion, id_usuario)
+
+Una conversación puede tener uno o varios participantes.
+
+---
+
+## MENSAJE
+
+Almacena mensajes enviados dentro de una conversación.
+
+Campos:
+
+- id_mensaje — PK
+- id_conversacion — FK → CONVERSACION
+- id_usuario — FK → USUARIO
+- contenido
+- fecha_envio
+- fecha_lectura
+
+---
+
+## BITACORA_EVENTO
+
+Registra acciones importantes realizadas en el sistema.
+
+Campos:
+
+- id_evento — PK
+- id_usuario — FK → USUARIO
+- accion
+- entidad
+- id_registro
+- fecha_evento
+- direccion_ip_hash
+- detalle
+
+Ejemplos:
+
+- creación de actividad;
+- modificación de inscripción;
+- aprobación de organización;
+- cambio de estado;
+- operaciones administrativas.
+
+---
+
+# 4. RELACIONES PRINCIPALES
+
+USUARIO N:M ROL  
+mediante USUARIO_ROL.
+
+USUARIO 1:0..1 VOLUNTARIO.
+
+USUARIO N:M ORGANIZACION  
+mediante ORGANIZACION_MIEMBRO.
+
+ORGANIZACION N:M CATEGORIA  
+mediante ORGANIZACION_CATEGORIA.
+
+ORGANIZACION 1:N ACTIVIDAD.
+
+CATEGORIA 1:N ACTIVIDAD.
+
+VOLUNTARIO N:M HABILIDAD  
+mediante VOLUNTARIO_HABILIDAD.
+
+ACTIVIDAD N:M HABILIDAD  
+mediante ACTIVIDAD_HABILIDAD.
+
+VOLUNTARIO N:M ACTIVIDAD  
+mediante INSCRIPCION.
+
+ESTADO_INSCRIPCION 1:N INSCRIPCION.
+
+INSCRIPCION 1:N HISTORIAL_INSCRIPCION.
+
+INSCRIPCION 1:0..1 ASISTENCIA.
+
+INSCRIPCION 1:0..1 CERTIFICADO.
+
+INSCRIPCION 1:0..1 VALORACION.
+
+VOLUNTARIO N:M ACTIVIDAD  
+mediante FAVORITO.
+
+ACTIVIDAD 1:0..1 IMPACTO_ACTIVIDAD.
+
+ACTIVIDAD 1:N EVIDENCIA_ACTIVIDAD.
+
+USUARIO 1:N NOTIFICACION.
+
+CONVERSACION N:M USUARIO  
+mediante CONVERSACION_PARTICIPANTE.
+
+CONVERSACION 1:N MENSAJE.
+
+USUARIO 1:N MENSAJE.
+
+USUARIO 1:N BITACORA_EVENTO.
+
+---
+
+# 5. NORMALIZACIÓN
+
+El modelo debe mantenerse normalizado como mínimo hasta 3FN.
+
+## Primera Forma Normal — 1FN
+
+Todos los atributos deben contener valores atómicos.
+
+No almacenar:
+
+habilidades = "Cocina, Logística, Primeros auxilios"
+
+Se utiliza:
+
+VOLUNTARIO_HABILIDAD.
+
+Tampoco almacenar varios roles en una sola columna.
+
+Se utiliza:
+
+USUARIO_ROL.
+
+---
+
+## Segunda Forma Normal — 2FN
+
+Todos los atributos que no forman parte de una clave deben depender de la clave completa.
+
+Las relaciones N:M utilizan tablas puente independientes, por ejemplo:
+
+- USUARIO_ROL
+- VOLUNTARIO_HABILIDAD
+- ACTIVIDAD_HABILIDAD
+- ORGANIZACION_MIEMBRO
+- ORGANIZACION_CATEGORIA
+- FAVORITO
+
+Los atributos de las entidades no se mezclan dentro de estas relaciones.
+
+---
+
+## Tercera Forma Normal — 3FN
+
+No deben existir dependencias transitivas entre atributos no clave.
+
+Por ejemplo, ACTIVIDAD no almacena:
+
+- nombre_organizacion;
+- teléfono_organizacion;
+- nombre_categoria;
+- nombre_habilidad.
+
+Solo almacena las claves foráneas correspondientes:
+
+- id_organizacion;
+- id_categoria;
+- id_ubicacion.
+
+Los datos completos permanecen en las tablas respectivas.
+
+---
+
+# 6. REGLAS IMPORTANTES
+
+1. Los correos de usuario deben ser únicos.
+
+2. Las contraseñas deben almacenarse mediante hash.
+
+3. Un usuario puede tener múltiples roles.
+
+4. Un usuario puede pertenecer a varias organizaciones.
+
+5. Una organización puede tener varios miembros.
+
+6. Una organización puede trabajar en varias categorías.
+
+7. Un voluntario puede tener múltiples habilidades.
+
+8. Una actividad puede requerir múltiples habilidades.
+
+9. Un voluntario no puede inscribirse dos veces en una misma actividad.
+
+10. Una inscripción conserva su historial de estados.
+
+11. Solo puede existir un registro de asistencia por inscripción.
+
+12. Solo puede existir un certificado por inscripción.
+
+13. Solo puede existir una valoración por inscripción.
+
+14. Los archivos e imágenes deben almacenarse fuera de la BD y registrar solamente sus URLs o referencias.
+
+15. Las acciones relevantes deben poder registrarse en la bitácora.
+
+16. Las claves foráneas deben garantizar la integridad referencial.
+
+17. El diseño debe permitir ampliar funcionalidades sin modificar innecesariamente las tablas centrales.
+
+---
+
+# 7. OBJETIVO DEL DISEÑO
+
+El modelo debe soportar una plataforma de voluntariado real, escalable y potencialmente publicable.
+
+Debe permitir comenzar desarrollando únicamente las funcionalidades esenciales y posteriormente incorporar funciones avanzadas sin tener que reconstruir la base de datos desde cero.
+
+Cuando trabajemos sobre este proyecto, considera esta información como la definición oficial de la base de datos de Voluntia.

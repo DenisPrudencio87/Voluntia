@@ -1,0 +1,1558 @@
+# VOLUNTIA
+## Especificación funcional completa de la plataforma
+
+---
+
+# 1. VISIÓN GENERAL
+
+Voluntia es una plataforma destinada a conectar personas interesadas en realizar voluntariado con organizaciones que desarrollan actividades de impacto social.
+
+El objetivo principal de la plataforma es facilitar:
+
+- la búsqueda de oportunidades de voluntariado;
+- la inscripción de voluntarios;
+- la gestión de actividades sociales;
+- la administración de organizaciones;
+- el registro de asistencia;
+- la medición del impacto generado;
+- la emisión de certificados;
+- la comunicación entre voluntarios y organizaciones;
+- la supervisión general de la plataforma.
+
+La plataforma debe ser fácil de utilizar para una persona sin conocimientos técnicos.
+
+---
+
+# 2. TIPOS DE USUARIO
+
+La plataforma debe manejar los siguientes tipos principales de usuario:
+
+## 2.1. Visitante
+
+Persona que todavía no ha iniciado sesión.
+
+Puede:
+
+- ingresar a la página principal;
+- consultar actividades públicas;
+- buscar actividades;
+- utilizar filtros;
+- consultar detalles de una actividad;
+- consultar información pública de organizaciones;
+- consultar certificados mediante su código público de verificación;
+- registrarse;
+- iniciar sesión.
+
+No puede:
+
+- inscribirse en actividades;
+- guardar favoritos;
+- enviar mensajes;
+- valorar actividades;
+- acceder a información privada;
+- administrar organizaciones.
+
+---
+
+# 2.2. Voluntario
+
+Usuario registrado que posee un perfil de voluntario.
+
+Puede:
+
+- completar y editar su perfil;
+- agregar habilidades;
+- buscar actividades;
+- guardar actividades como favoritas;
+- inscribirse en actividades;
+- consultar el estado de sus inscripciones;
+- cancelar una inscripción cuando esté permitido;
+- consultar su historial;
+- visualizar sus próximas actividades;
+- consultar sus asistencias;
+- recibir notificaciones;
+- comunicarse con organizaciones;
+- descargar o consultar certificados;
+- valorar actividades en las que participó;
+- consultar sus horas acumuladas de voluntariado.
+
+---
+
+# 2.3. Miembro de organización
+
+Usuario autorizado para administrar una organización.
+
+Dependiendo de su cargo o permisos podrá:
+
+- editar información de la organización;
+- gestionar integrantes;
+- presentar documentos de verificación;
+- crear actividades;
+- editar actividades;
+- publicar actividades;
+- cancelar actividades;
+- revisar voluntarios inscritos;
+- aceptar o rechazar inscripciones;
+- gestionar listas de espera;
+- registrar asistencia;
+- registrar impacto social;
+- subir evidencias;
+- emitir certificados;
+- comunicarse con voluntarios;
+- consultar estadísticas de su organización.
+
+Una misma organización puede tener varios miembros.
+
+Un mismo usuario puede ser voluntario y al mismo tiempo pertenecer a una organización.
+
+---
+
+# 2.4. Administrador de Voluntia
+
+Responsable general de la plataforma.
+
+Puede:
+
+- administrar usuarios;
+- administrar roles;
+- revisar organizaciones;
+- aprobar o rechazar organizaciones;
+- revisar documentos;
+- moderar actividades;
+- administrar categorías;
+- administrar habilidades;
+- suspender usuarios;
+- suspender organizaciones;
+- revisar reportes;
+- consultar estadísticas generales;
+- revisar acciones importantes realizadas dentro del sistema;
+- intervenir ante contenido fraudulento o abusivo.
+
+El administrador no debe modificar arbitrariamente datos históricos de participación salvo que exista un motivo administrativo justificado.
+
+---
+
+# 2.5. Moderador
+
+Opcionalmente puede existir un rol intermedio.
+
+Puede encargarse de:
+
+- revisar contenido;
+- revisar organizaciones;
+- revisar actividades denunciadas;
+- atender reportes;
+- ocultar contenido inapropiado.
+
+No necesariamente tendrá acceso a todas las funciones administrativas.
+
+---
+
+# 3. PÁGINA PRINCIPAL
+
+La página principal debe explicar inmediatamente qué es Voluntia.
+
+Debe incluir:
+
+- nombre de la plataforma;
+- breve explicación;
+- acceso a actividades;
+- opción para registrarse;
+- opción para iniciar sesión;
+- actividades destacadas;
+- categorías de voluntariado;
+- estadísticas generales;
+- organizaciones destacadas;
+- explicación de cómo funciona la plataforma.
+
+Ejemplo de mensaje principal:
+
+"Encuentra oportunidades para ayudar, conecta con organizaciones y genera impacto en tu comunidad."
+
+---
+
+# 4. EXPLORACIÓN DE ACTIVIDADES
+
+Debe existir una sección pública donde se muestren las actividades disponibles.
+
+Cada actividad deberá mostrar al menos:
+
+- título;
+- imagen;
+- categoría;
+- organización;
+- ubicación;
+- fecha;
+- modalidad;
+- cupos disponibles;
+- estado;
+- breve descripción.
+
+---
+
+# 5. BÚSQUEDA Y FILTROS
+
+El usuario debe poder buscar actividades.
+
+Filtros recomendados:
+
+- texto;
+- categoría;
+- ubicación;
+- organización;
+- modalidad;
+- fecha;
+- disponibilidad;
+- habilidades requeridas.
+
+También debe permitirse ordenar por:
+
+- actividades más recientes;
+- fecha más próxima;
+- mayor disponibilidad;
+- mayor popularidad.
+
+Los filtros deben poder combinarse.
+
+---
+
+# 6. DETALLE DE ACTIVIDAD
+
+Cada actividad tendrá una página propia.
+
+Debe mostrar:
+
+- título;
+- imagen principal;
+- organización responsable;
+- categoría;
+- descripción completa;
+- ubicación;
+- modalidad;
+- fecha de inicio;
+- fecha de finalización;
+- cierre de inscripciones;
+- número máximo de voluntarios;
+- número de inscritos;
+- cupos disponibles;
+- habilidades solicitadas;
+- requisitos;
+- estado;
+- información importante proporcionada por la organización.
+
+También debe mostrar claramente la acción disponible.
+
+Por ejemplo:
+
+- Inscribirme
+- Guardar
+- Inscripciones cerradas
+- Actividad finalizada
+- Cupos agotados
+- En lista de espera
+
+---
+
+# 7. REGISTRO DE USUARIO
+
+Una persona debe poder crear una cuenta.
+
+Como mínimo deberá proporcionar:
+
+- correo electrónico;
+- contraseña;
+- confirmación de contraseña.
+
+El correo debe ser único.
+
+Una vez creada la cuenta, deberá verificarse el correo.
+
+Una cuenta no verificada puede tener funciones restringidas.
+
+---
+
+# 8. INICIO DE SESIÓN
+
+Un usuario debe poder ingresar utilizando sus credenciales.
+
+También debe existir:
+
+- recuperación de contraseña;
+- cierre de sesión;
+- cambio de contraseña.
+
+Por motivos de seguridad, operaciones sensibles pueden requerir volver a confirmar la identidad.
+
+---
+
+# 9. PERFIL DEL VOLUNTARIO
+
+Después de registrarse, el voluntario podrá completar su perfil.
+
+Información posible:
+
+- nombres;
+- apellidos;
+- fotografía;
+- fecha de nacimiento;
+- teléfono;
+- ubicación;
+- biografía;
+- habilidades.
+
+El perfil deberá mostrar también información generada automáticamente:
+
+- horas acumuladas;
+- actividades realizadas;
+- certificados obtenidos;
+- habilidades registradas;
+- valoraciones o reconocimientos futuros.
+
+---
+
+# 10. HABILIDADES DEL VOLUNTARIO
+
+Un voluntario puede registrar varias habilidades.
+
+Ejemplos:
+
+- enseñanza;
+- primeros auxilios;
+- logística;
+- cocina;
+- fotografía;
+- idiomas;
+- programación.
+
+Para cada habilidad puede registrarse un nivel.
+
+Ejemplo:
+
+- Básico
+- Intermedio
+- Avanzado
+
+Algunas habilidades podrían estar verificadas por la plataforma en futuras versiones.
+
+---
+
+# 11. INSCRIPCIÓN A UNA ACTIVIDAD
+
+Un voluntario puede inscribirse en una actividad cuando:
+
+- la actividad esté publicada;
+- el periodo de inscripción continúe abierto;
+- la actividad no esté cancelada;
+- el usuario tenga una cuenta válida;
+- el usuario tenga un perfil de voluntario.
+
+Un voluntario no puede inscribirse dos veces en la misma actividad.
+
+Al realizar una inscripción puede solicitarse una breve motivación.
+
+Ejemplo:
+
+"¿Por qué deseas participar?"
+
+---
+
+# 12. ESTADOS DE INSCRIPCIÓN
+
+Una inscripción puede pasar por distintos estados.
+
+Estados recomendados:
+
+- Pendiente
+- Aceptada
+- Rechazada
+- Lista de espera
+- Cancelada
+- Finalizada
+
+---
+
+# 13. COMPORTAMIENTO DE CADA ESTADO
+
+## Pendiente
+
+La organización todavía no ha tomado una decisión.
+
+## Aceptada
+
+El voluntario fue admitido.
+
+## Rechazada
+
+La organización decidió no aceptar la inscripción.
+
+## Lista de espera
+
+No existe cupo actual, pero el voluntario podría ingresar posteriormente.
+
+## Cancelada
+
+El voluntario o la organización canceló la participación.
+
+## Finalizada
+
+La actividad terminó y la participación fue procesada.
+
+---
+
+# 14. CONTROL DE CUPOS
+
+Cada actividad debe tener un límite máximo de voluntarios.
+
+Ejemplo:
+
+Cupo máximo: 30
+
+Aceptados: 27
+
+Disponibles: 3
+
+La plataforma debe impedir aceptar más voluntarios que el máximo establecido.
+
+Cuando se complete el cupo, los siguientes inscritos pueden pasar automáticamente o manualmente a lista de espera.
+
+---
+
+# 15. LISTA DE ESPERA
+
+Si una actividad completa su capacidad, puede utilizar una lista de espera.
+
+Cuando un voluntario aceptado cancela:
+
+- se libera un cupo;
+- la organización puede aceptar a una persona de la lista de espera;
+- el nuevo voluntario debe ser notificado.
+
+La organización puede decidir el orden en que procesa la lista.
+
+---
+
+# 16. CANCELACIÓN DE INSCRIPCIÓN
+
+Un voluntario puede cancelar su inscripción mientras la organización lo permita.
+
+No debe poder cancelar libremente después de ciertos puntos críticos si la organización define restricciones.
+
+Por ejemplo, una actividad podría impedir cancelaciones durante las últimas 12 horas.
+
+La cancelación debe quedar registrada en el historial.
+
+---
+
+# 17. HISTORIAL DE INSCRIPCIÓN
+
+Todos los cambios importantes deben conservarse.
+
+Ejemplo:
+
+10/11 - Inscripción creada - Pendiente
+
+11/11 - Organización aceptó al voluntario
+
+14/11 - Voluntario canceló
+
+No debe perderse el historial cuando se cambia el estado actual.
+
+---
+
+# 18. FAVORITOS
+
+Los voluntarios pueden guardar actividades.
+
+Una actividad guardada aparecerá en:
+
+"Mis favoritos".
+
+Guardar una actividad no significa inscribirse.
+
+Debe existir la opción:
+
+- Guardar
+- Quitar de favoritos
+
+---
+
+# 19. ORGANIZACIONES
+
+Cada organización tendrá un perfil público.
+
+Debe mostrar:
+
+- nombre;
+- logotipo;
+- descripción;
+- ubicación;
+- áreas de trabajo;
+- sitio web;
+- información de contacto;
+- estado de verificación;
+- actividades publicadas;
+- actividades realizadas.
+
+---
+
+# 20. REGISTRO DE ORGANIZACIONES
+
+Una organización puede solicitar formar parte de Voluntia.
+
+Deberá proporcionar:
+
+- nombre;
+- descripción;
+- contacto;
+- ubicación;
+- áreas en las que trabaja;
+- documentación solicitada.
+
+Inicialmente puede quedar con estado:
+
+"Pendiente de verificación".
+
+Mientras no sea aprobada, ciertas funciones estarán limitadas.
+
+---
+
+# 21. VERIFICACIÓN DE ORGANIZACIONES
+
+Los administradores deben revisar la información de una organización.
+
+Estados posibles:
+
+- Pendiente
+- Verificada
+- Rechazada
+- Suspendida
+
+Una organización verificada deberá mostrar una marca visible.
+
+Ejemplo:
+
+✓ Organización verificada
+
+---
+
+# 22. DOCUMENTOS DE ORGANIZACIÓN
+
+Las organizaciones podrán cargar documentación.
+
+Cada documento tendrá:
+
+- tipo;
+- número si corresponde;
+- archivo;
+- fecha de carga;
+- estado;
+- fecha de revisión.
+
+Un administrador podrá:
+
+- aprobar;
+- rechazar;
+- solicitar corrección.
+
+---
+
+# 23. MIEMBROS DE ORGANIZACIÓN
+
+Una organización puede tener varios usuarios encargados.
+
+Ejemplos:
+
+- Administrador de organización
+- Coordinador
+- Responsable de voluntarios
+- Responsable de actividades
+
+La plataforma debe permitir agregar y retirar miembros.
+
+Retirar un miembro no debe eliminar las actividades que creó.
+
+---
+
+# 24. CREACIÓN DE ACTIVIDADES
+
+Una organización puede crear una actividad.
+
+Debe poder registrar:
+
+- título;
+- descripción;
+- categoría;
+- ubicación;
+- modalidad;
+- fecha de inicio;
+- fecha de finalización;
+- fecha límite de inscripción;
+- cupo máximo;
+- imagen;
+- habilidades requeridas.
+
+Inicialmente puede guardarse como:
+
+"Borrador".
+
+---
+
+# 25. ESTADOS DE ACTIVIDAD
+
+Estados recomendados:
+
+- Borrador
+- Publicada
+- Inscripciones cerradas
+- En curso
+- Finalizada
+- Cancelada
+
+---
+
+# 26. BORRADOR
+
+Una actividad en borrador:
+
+- no aparece públicamente;
+- puede modificarse libremente;
+- no acepta inscripciones.
+
+---
+
+# 27. PUBLICADA
+
+Una actividad publicada:
+
+- aparece en búsquedas;
+- puede recibir inscripciones;
+- puede guardarse como favorita.
+
+---
+
+# 28. INSCRIPCIONES CERRADAS
+
+La actividad sigue siendo visible, pero ya no admite nuevas inscripciones.
+
+---
+
+# 29. EN CURSO
+
+La actividad ya comenzó.
+
+No debe admitir nuevas inscripciones.
+
+La organización puede registrar asistencia.
+
+---
+
+# 30. FINALIZADA
+
+La actividad terminó.
+
+La organización puede:
+
+- registrar resultados;
+- subir evidencias;
+- confirmar asistencias;
+- emitir certificados.
+
+---
+
+# 31. CANCELADA
+
+Una organización puede cancelar una actividad.
+
+Debe solicitarse un motivo.
+
+Todos los voluntarios inscritos deberán recibir una notificación.
+
+Las inscripciones asociadas deben mantenerse para conservar el historial.
+
+---
+
+# 32. HABILIDADES REQUERIDAS
+
+Una actividad puede solicitar habilidades.
+
+Por ejemplo:
+
+Actividad:
+
+"Campaña de salud comunitaria"
+
+Habilidades:
+
+- Primeros auxilios - obligatoria
+- Enfermería - deseable
+- Logística - deseable
+
+Una habilidad puede ser:
+
+- obligatoria;
+- recomendada.
+
+La plataforma puede mostrar al voluntario cuánto coincide su perfil con la actividad.
+
+---
+
+# 33. GESTIÓN DE INSCRITOS
+
+La organización tendrá una página con todos los postulantes de una actividad.
+
+Debe mostrar:
+
+- voluntario;
+- fecha de inscripción;
+- habilidades;
+- motivación;
+- estado.
+
+La organización podrá:
+
+- aceptar;
+- rechazar;
+- colocar en espera;
+- consultar perfil.
+
+---
+
+# 34. REGISTRO DE ASISTENCIA
+
+Durante o después de una actividad, la organización deberá registrar la asistencia.
+
+Estados posibles:
+
+- Asistió
+- No asistió
+- Justificado
+
+Opcionalmente puede registrar:
+
+- hora de entrada;
+- hora de salida;
+- observaciones.
+
+Solo una inscripción válida puede tener asistencia.
+
+---
+
+# 35. HORAS DE VOLUNTARIADO
+
+Cuando sea posible, la plataforma deberá calcular las horas realizadas.
+
+Las horas podrán mostrarse en el perfil del voluntario.
+
+Ejemplo:
+
+Actividades realizadas: 12
+
+Horas de voluntariado: 46
+
+Certificados: 8
+
+---
+
+# 36. IMPACTO DE LA ACTIVIDAD
+
+Después de finalizar una actividad, la organización podrá registrar resultados.
+
+Ejemplos:
+
+- personas beneficiadas;
+- horas acumuladas;
+- descripción del resultado;
+- cantidad de recursos distribuidos;
+- cantidad de residuos recolectados;
+- otros indicadores relacionados con la actividad.
+
+No todas las actividades usarán los mismos indicadores.
+
+Por eso deberá existir siempre un campo de descripción libre del impacto.
+
+---
+
+# 37. EVIDENCIAS
+
+La organización podrá subir evidencias relacionadas con una actividad.
+
+Ejemplos:
+
+- fotografías;
+- documentos;
+- reportes;
+- videos;
+- enlaces.
+
+Cada evidencia deberá indicar:
+
+- tipo;
+- descripción;
+- fecha;
+- usuario que la agregó.
+
+---
+
+# 38. CERTIFICADOS
+
+Un voluntario que haya participado satisfactoriamente puede recibir un certificado.
+
+El certificado deberá incluir al menos:
+
+- nombre del voluntario;
+- actividad;
+- organización;
+- fecha;
+- horas certificadas;
+- código único de verificación.
+
+Solo debe existir un certificado válido por participación.
+
+---
+
+# 39. VERIFICACIÓN DE CERTIFICADOS
+
+Debe existir una página pública donde cualquier persona pueda introducir un código.
+
+Ejemplo:
+
+VOL-2026-X82K4
+
+La plataforma mostrará:
+
+- certificado válido o inválido;
+- nombre del participante;
+- organización;
+- actividad;
+- fecha;
+- horas certificadas.
+
+Esto permite utilizar el certificado en currículums o postulaciones.
+
+---
+
+# 40. VALORACIONES
+
+Después de finalizar una actividad, un voluntario que realmente participó podrá valorarla.
+
+Puede registrar:
+
+- puntuación;
+- comentario.
+
+Ejemplo:
+
+4/5
+
+"La actividad estuvo bien organizada."
+
+Un voluntario no puede valorar una actividad en la que nunca participó.
+
+Solo puede realizar una valoración por participación.
+
+---
+
+# 41. NOTIFICACIONES
+
+La plataforma debe generar notificaciones ante eventos importantes.
+
+Ejemplos:
+
+- inscripción recibida;
+- inscripción aceptada;
+- inscripción rechazada;
+- ingreso a lista de espera;
+- actividad próxima;
+- cambio de horario;
+- cambio de ubicación;
+- actividad cancelada;
+- certificado disponible;
+- mensaje recibido.
+
+Las notificaciones pueden estar:
+
+- no leídas;
+- leídas.
+
+---
+
+# 42. CENTRO DE NOTIFICACIONES
+
+Cada usuario tendrá una sección:
+
+"Notificaciones"
+
+Cada elemento mostrará:
+
+- título;
+- mensaje;
+- fecha;
+- estado;
+- enlace relacionado.
+
+Ejemplo:
+
+"Tu inscripción fue aceptada"
+
+Campaña de limpieza comunitaria
+
+Hace 2 horas
+
+---
+
+# 43. MENSAJERÍA INTERNA
+
+Los voluntarios y organizaciones podrán comunicarse dentro de la plataforma.
+
+El sistema podrá contener conversaciones.
+
+Una conversación tendrá:
+
+- participantes;
+- mensajes;
+- fecha de creación;
+- última actividad.
+
+---
+
+# 44. MENSAJES
+
+Cada mensaje deberá identificar:
+
+- conversación;
+- remitente;
+- contenido;
+- fecha;
+- estado de lectura.
+
+La mensajería debe utilizarse principalmente para asuntos relacionados con voluntariado.
+
+---
+
+# 45. DASHBOARD DEL VOLUNTARIO
+
+Cuando un voluntario inicia sesión debe acceder a un panel personal.
+
+Debe mostrar:
+
+- saludo;
+- próximas actividades;
+- inscripciones pendientes;
+- actividades aceptadas;
+- horas acumuladas;
+- certificados;
+- favoritos;
+- notificaciones recientes.
+
+Accesos principales:
+
+- Explorar actividades
+- Mis inscripciones
+- Favoritos
+- Habilidades
+- Certificados
+- Mensajes
+- Perfil
+
+---
+
+# 46. DASHBOARD DE ORGANIZACIÓN
+
+Un miembro autorizado verá un panel distinto.
+
+Debe mostrar:
+
+- actividades activas;
+- próximas actividades;
+- número de inscritos;
+- solicitudes pendientes;
+- participantes confirmados;
+- actividades finalizadas;
+- impacto registrado.
+
+Accesos:
+
+- Crear actividad
+- Mis actividades
+- Inscripciones
+- Asistencia
+- Evidencias
+- Impacto
+- Certificados
+- Miembros
+- Perfil de organización
+
+---
+
+# 47. DASHBOARD DEL ADMINISTRADOR
+
+Debe proporcionar una visión general de Voluntia.
+
+Indicadores posibles:
+
+- usuarios registrados;
+- voluntarios activos;
+- organizaciones;
+- organizaciones pendientes;
+- actividades publicadas;
+- actividades activas;
+- inscripciones;
+- certificados;
+- reportes pendientes.
+
+---
+
+# 48. GESTIÓN DE USUARIOS
+
+El administrador podrá buscar usuarios por:
+
+- nombre;
+- correo;
+- estado;
+- rol.
+
+Podrá:
+
+- consultar detalles;
+- activar;
+- suspender;
+- restaurar;
+- asignar roles cuando corresponda.
+
+Suspender una cuenta no debe borrar sus datos históricos.
+
+---
+
+# 49. GESTIÓN DE ORGANIZACIONES
+
+El administrador podrá:
+
+- consultar organizaciones;
+- revisar documentos;
+- aprobar;
+- rechazar;
+- suspender;
+- restaurar.
+
+Una organización suspendida:
+
+- no podrá publicar nuevas actividades;
+- sus miembros recibirán aviso;
+- sus actividades públicas podrán ocultarse según el motivo.
+
+---
+
+# 50. GESTIÓN DE CATEGORÍAS
+
+El administrador podrá:
+
+- crear categorías;
+- editar categorías;
+- desactivar categorías.
+
+Una categoría utilizada históricamente no debe eliminarse físicamente si ello rompe registros existentes.
+
+Debe preferirse desactivarla.
+
+---
+
+# 51. GESTIÓN DE HABILIDADES
+
+El administrador podrá:
+
+- crear habilidades;
+- editar habilidades;
+- desactivar habilidades.
+
+Las habilidades utilizadas en perfiles existentes deberán conservarse históricamente.
+
+---
+
+# 52. MODERACIÓN DE ACTIVIDADES
+
+Un administrador o moderador podrá revisar actividades que:
+
+- violen las reglas;
+- contengan información engañosa;
+- sean denunciadas;
+- representen un riesgo;
+- pertenezcan a organizaciones suspendidas.
+
+Podrá:
+
+- ocultarlas;
+- solicitar corrección;
+- cancelarlas;
+- restaurarlas.
+
+---
+
+# 53. BITÁCORA ADMINISTRATIVA
+
+Las acciones importantes deben quedar registradas.
+
+Ejemplos:
+
+- organización aprobada;
+- organización suspendida;
+- usuario suspendido;
+- actividad eliminada de publicación;
+- inscripción modificada;
+- certificado emitido.
+
+La bitácora debe permitir identificar:
+
+- quién realizó la acción;
+- qué acción realizó;
+- sobre qué elemento;
+- cuándo;
+- información adicional relevante.
+
+---
+
+# 54. REGLAS GENERALES DE NEGOCIO
+
+La plataforma debe respetar las siguientes reglas:
+
+1. Un correo electrónico no puede pertenecer a dos cuentas.
+
+2. Un voluntario no puede inscribirse dos veces en la misma actividad.
+
+3. Una actividad no puede aceptar más voluntarios que su cupo máximo.
+
+4. Una actividad cancelada no acepta nuevas inscripciones.
+
+5. Una actividad finalizada no acepta nuevas inscripciones.
+
+6. Una actividad no puede finalizar antes de comenzar.
+
+7. La fecha límite de inscripción no debe ser posterior al inicio de la actividad.
+
+8. Solo una organización autorizada puede publicar actividades.
+
+9. Solo miembros autorizados pueden administrar una organización.
+
+10. Solo voluntarios registrados pueden inscribirse.
+
+11. Solo participantes válidos pueden recibir asistencia.
+
+12. Solo participantes válidos pueden obtener certificados.
+
+13. Solo participantes válidos pueden valorar actividades.
+
+14. La información histórica no debe eliminarse por cambios posteriores.
+
+15. Suspender un usuario no debe eliminar su historial.
+
+16. Suspender una organización no debe borrar sus actividades históricas.
+
+17. Los cambios importantes deben generar notificaciones cuando corresponda.
+
+18. Las operaciones sensibles deben quedar registradas.
+
+---
+
+# 55. ELIMINACIÓN DE INFORMACIÓN
+
+La plataforma debe evitar borrar definitivamente información que forme parte del historial.
+
+Por ejemplo:
+
+No debe borrarse físicamente una organización que ya realizó actividades.
+
+No debe borrarse una actividad con participantes.
+
+No debe borrarse una inscripción histórica.
+
+En estos casos debe utilizarse un cambio de estado.
+
+Ejemplo:
+
+Activo → Inactivo
+
+Publicada → Cancelada
+
+Usuario activo → Usuario suspendido
+
+---
+
+# 56. COMPORTAMIENTO ANTE ERRORES
+
+La plataforma debe mostrar mensajes claros.
+
+No debe utilizar mensajes técnicos incomprensibles.
+
+Ejemplos correctos:
+
+"No quedan cupos disponibles para esta actividad."
+
+"Ya estás inscrito en esta actividad."
+
+"Tu sesión ha expirado. Inicia sesión nuevamente."
+
+"Esta actividad ya no acepta inscripciones."
+
+"No tienes permiso para realizar esta acción."
+
+"No encontramos el certificado solicitado."
+
+---
+
+# 57. CONFIRMACIONES
+
+Acciones importantes deben pedir confirmación.
+
+Ejemplos:
+
+- cancelar inscripción;
+- cancelar actividad;
+- suspender usuario;
+- rechazar organización;
+- eliminar evidencia;
+- retirar miembro.
+
+Ejemplo:
+
+"¿Estás seguro de que deseas cancelar esta actividad? Los participantes inscritos serán notificados."
+
+---
+
+# 58. ESTADOS VACÍOS
+
+Cuando una sección no tenga información, debe explicarlo claramente.
+
+Ejemplo:
+
+En lugar de mostrar una tabla vacía:
+
+"Todavía no tienes actividades favoritas."
+
+Y ofrecer:
+
+"Explorar actividades"
+
+Otro ejemplo:
+
+"No tienes certificados disponibles todavía."
+
+---
+
+# 59. PERMISOS
+
+Un usuario solo puede visualizar o modificar la información que le corresponde.
+
+Ejemplos:
+
+Un voluntario no puede editar actividades de una organización.
+
+Una organización no puede modificar actividades de otra organización.
+
+Un miembro de organización no puede administrar otra organización salvo que también pertenezca a ella.
+
+Un administrador sí puede consultar información de gestión general.
+
+---
+
+# 60. PRIVACIDAD
+
+La información privada de un voluntario no debe mostrarse públicamente sin necesidad.
+
+Por ejemplo:
+
+El teléfono personal no debe aparecer públicamente por defecto.
+
+Los datos administrativos de una organización tampoco deben mostrarse a cualquier visitante.
+
+La plataforma debe diferenciar claramente:
+
+- información pública;
+- información privada;
+- información administrativa.
+
+---
+
+# 61. PERFIL PÚBLICO Y PRIVADO DEL VOLUNTARIO
+
+El perfil privado podrá mostrar toda la información del usuario.
+
+El perfil público puede mostrar únicamente:
+
+- nombre;
+- fotografía;
+- biografía;
+- habilidades;
+- actividades realizadas;
+- horas acumuladas;
+- certificados o reconocimientos públicos.
+
+Información como teléfono y correo no debe aparecer públicamente por defecto.
+
+---
+
+# 62. RECOMENDACIÓN DE ACTIVIDADES
+
+Como función avanzada, Voluntia puede recomendar actividades utilizando:
+
+- habilidades;
+- ubicación;
+- categorías preferidas;
+- historial de participación.
+
+Ejemplo:
+
+"Esta actividad coincide con 3 de tus habilidades."
+
+Esto no debe impedir que el usuario explore otras actividades.
+
+---
+
+# 63. ESTADÍSTICAS DEL VOLUNTARIO
+
+El usuario podrá consultar:
+
+- actividades realizadas;
+- actividades próximas;
+- horas acumuladas;
+- certificados;
+- categorías en las que más participa.
+
+---
+
+# 64. ESTADÍSTICAS DE ORGANIZACIÓN
+
+La organización podrá consultar:
+
+- actividades creadas;
+- actividades finalizadas;
+- voluntarios participantes;
+- horas generadas;
+- beneficiarios;
+- porcentaje de asistencia;
+- valoraciones recibidas.
+
+---
+
+# 65. ESTADÍSTICAS GENERALES DE VOLUNTIA
+
+Los administradores podrán consultar:
+
+- crecimiento de usuarios;
+- organizaciones verificadas;
+- actividades creadas;
+- actividades completadas;
+- inscripciones;
+- horas de voluntariado;
+- beneficiarios estimados;
+- categorías más activas.
+
+---
+
+# 66. EXPERIENCIA DEL VISITANTE
+
+Un visitante debería poder realizar el siguiente recorrido:
+
+Inicio
+
+→ Explorar actividades
+
+→ Filtrar
+
+→ Abrir actividad
+
+→ Leer información
+
+→ Intentar inscribirse
+
+→ La plataforma solicita iniciar sesión o registrarse
+
+→ Crear cuenta
+
+→ Completar perfil
+
+→ Inscribirse
+
+---
+
+# 67. EXPERIENCIA DEL VOLUNTARIO
+
+Flujo típico:
+
+Registro
+
+→ Verificar cuenta
+
+→ Completar perfil
+
+→ Registrar habilidades
+
+→ Buscar actividad
+
+→ Consultar detalle
+
+→ Inscribirse
+
+→ Esperar respuesta
+
+→ Recibir aceptación
+
+→ Participar
+
+→ Registrar asistencia
+
+→ Recibir certificado
+
+→ Valorar actividad
+
+→ Acumular historial y horas.
+
+---
+
+# 68. EXPERIENCIA DE UNA ORGANIZACIÓN
+
+Flujo típico:
+
+Crear cuenta
+
+→ Registrar organización
+
+→ Enviar documentación
+
+→ Esperar aprobación
+
+→ Configurar perfil
+
+→ Crear actividad
+
+→ Guardar como borrador
+
+→ Publicar
+
+→ Recibir inscritos
+
+→ Revisar perfiles
+
+→ Aceptar participantes
+
+→ Realizar actividad
+
+→ Registrar asistencia
+
+→ Registrar resultados
+
+→ Subir evidencias
+
+→ Emitir certificados
+
+→ Consultar estadísticas.
+
+---
+
+# 69. EXPERIENCIA DEL ADMINISTRADOR
+
+Flujo típico:
+
+Iniciar sesión
+
+→ Consultar dashboard
+
+→ Revisar organizaciones pendientes
+
+→ Revisar documentación
+
+→ Aprobar o rechazar
+
+→ Supervisar actividades
+
+→ Atender incidencias
+
+→ Gestionar categorías y habilidades
+
+→ Consultar estadísticas
+
+→ Revisar historial administrativo.
+
+---
+
+# 70. PRIORIDAD DE FUNCIONALIDADES
+
+La plataforma puede desarrollarse progresivamente.
+
+## Primera versión obligatoria
+
+Debe incluir:
+
+- registro;
+- login;
+- voluntarios;
+- organizaciones;
+- actividades;
+- categorías;
+- habilidades;
+- inscripciones;
+- control de cupos;
+- aprobación de inscritos;
+- asistencia;
+- impacto;
+- administración básica.
+
+## Segunda etapa
+
+Puede incluir:
+
+- favoritos;
+- notificaciones;
+- certificados;
+- valoraciones;
+- documentos de organizaciones;
+- historial de inscripciones.
+
+## Tercera etapa
+
+Puede incluir:
+
+- mensajería;
+- recomendaciones;
+- perfiles públicos avanzados;
+- estadísticas avanzadas;
+- moderación;
+- auditoría más completa.
+
+---
+
+# 71. PRINCIPIO GENERAL DEL PRODUCTO
+
+Voluntia no debe comportarse como una simple colección de formularios.
+
+Debe funcionar como un flujo completo donde:
+
+las organizaciones crean oportunidades,
+
+los voluntarios encuentran oportunidades,
+
+las personas se inscriben,
+
+las organizaciones gestionan participantes,
+
+la participación se registra,
+
+los resultados se documentan,
+
+y el impacto social queda registrado.
+
+---
+
+# 72. RESULTADO ESPERADO
+
+Al terminar el sistema, una persona debería poder entrar sin conocer previamente Voluntia y comprender inmediatamente:
+
+- qué puede hacer;
+- qué actividades existen;
+- cómo convertirse en voluntario;
+- cómo inscribirse;
+- qué organizaciones participan.
+
+Una organización debería poder gestionar todo el ciclo de una actividad sin depender de herramientas externas.
+
+Un administrador debería poder supervisar la plataforma sin intervenir constantemente en operaciones normales.
+
+El objetivo final es que Voluntia funcione como una plataforma real de coordinación de voluntariado y no únicamente como una demostración académica.
