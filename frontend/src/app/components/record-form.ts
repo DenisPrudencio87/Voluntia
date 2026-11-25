@@ -28,7 +28,9 @@ export interface Field {
     @for (field of fields; track field.key) {
       <div [class]="field.type === 'textarea' ? 'col-12' : 'col-12 col-md-6'">
         <label [for]="id + '-' + field.key" class="form-label">{{ field.label }}</label>
-        @if (field.required) { <span aria-hidden="true" class="ms-1">*</span> }
+        @if (field.required) {
+          <span aria-hidden="true" class="ms-1">*</span>
+        }
         @if (field.type === 'select') {
           <select
             class="form-select"
@@ -87,6 +89,9 @@ export interface Field {
     @if (mismatch) {
       <p class="text-danger mb-0" role="alert">Las contraseñas no coinciden.</p>
     }
+    @if (validationMessage) {
+      <p class="text-danger mb-0" role="alert">{{ validationMessage }}</p>
+    }
     <div class="col-12">
       <button class="btn btn-primary" type="submit" [disabled]="busy">
         {{ busy ? 'Guardando…' : label }}
@@ -105,6 +110,7 @@ export class RecordForm implements OnChanges {
   @Output() saved = new EventEmitter<FormValue>();
   form: FormGroup = this.fb.group({});
   mismatch = false;
+  validationMessage = '';
   ngOnChanges(changes: SimpleChanges) {
     if (!changes['fields'] && !changes['initial']) return;
     const values = (this.initial ?? {}) as FormValue;
@@ -113,6 +119,8 @@ export class RecordForm implements OnChanges {
       const validators = [];
       if (field.required) validators.push(Validators.required);
       if (field.type === 'email') validators.push(Validators.email);
+      if (field.key.endsWith('_url') || field.key === 'sitio_web')
+        validators.push(Validators.pattern(/^https:\/\/[^\s/]+(?:\/.*)?$/));
       if (field.min !== undefined)
         validators.push(
           field.type === 'number' ? Validators.min(field.min) : Validators.minLength(field.min),
@@ -136,6 +144,29 @@ export class RecordForm implements OnChanges {
     this.form.markAllAsTouched();
     this.mismatch =
       this.form.contains('confirmacion') && this.form.value.clave !== this.form.value.confirmacion;
-    if (this.form.valid && !this.mismatch && !this.busy) this.saved.emit(this.form.getRawValue());
+    this.validationMessage = '';
+    const v = this.form.getRawValue();
+    if (
+      this.form.contains('fecha_inicio') &&
+      v.fecha_inicio &&
+      v.fecha_fin &&
+      v.fecha_cierre_inscripcion
+    ) {
+      if (!(
+        new Date(v.fecha_cierre_inscripcion) <= new Date(v.fecha_inicio) &&
+        new Date(v.fecha_inicio) < new Date(v.fecha_fin)
+      ))
+        this.validationMessage = 'Debe cumplirse: cierre de inscripción ≤ inicio < fin.';
+      if (v.modalidad !== 'virtual' && (!v.lugar || !v.direccion))
+        this.validationMessage = 'Indica lugar y dirección para esta modalidad.';
+    }
+    if (
+      this.form.contains('hora_entrada') &&
+      (!!v.hora_entrada !== !!v.hora_salida ||
+        (v.hora_entrada && new Date(v.hora_salida) < new Date(v.hora_entrada)))
+    )
+      this.validationMessage = 'Indica entrada y salida juntas y en orden.';
+    if (this.form.valid && !this.mismatch && !this.validationMessage && !this.busy)
+      this.saved.emit(v);
   }
 }

@@ -61,3 +61,18 @@ Dockerfile multietapa construido (`docker compose --profile app build app`). Ima
 Scripts Windows check/start -Built/stop probados con Python y base accesible: versiones y 23 tablas correctas, HTTP 200 en puerto propio 8010, detenido solo proceso registrado. Aplicación ejecutada sin Docker como dependencia del proceso (PostgreSQL local provenía de contenedor); no es evidencia de una PC universitaria ni de Supabase remoto.
 
 Siguiente acción: PR de Angular/CI, fase 6 de seguridad y pruebas negativas; completar setup/start desarrollo, clon limpio, guías y matriz. Publicación/Storage remoto continúan pendientes de autorización específica.
+
+## Fases 6–9 — seguridad, operación y documentación
+
+- PR #4 detectó carrera real: 201 antes del commit, GET inmediato 404. Artefactos de CI 45541184011 confirmaron la secuencia. Corregido con dependencias de alcance function en commit `1e0cb25`. CI 45541698923 y 45541705244: backend/frontend/integration aprobados; diff revisado, PR integrado en `90d75a5`.
+- Migración 0002 aplicada solo local: invariantes adicionales, certificado inmutable, grants privados; siguen 23 tablas. Rol NOLOGIN equivalente a runtime probado sin DDL/DELETE de usuarios y con aceptación SQL funcional. No se aplicó ningún grant ni migración remota.
+- Última suite: `python -m pytest backend/tests -q`: **28 passed, 21.86 s**. Incluye agregación con múltiples evidencias, documento nuevo fuerza revisión, suspensión/plazos y configuración cerrada. `ruff check --select F backend scripts`: aprobado. Formato Python/Angular aplicado para legibilidad. Aviso de deprecación HTTPX/TestClient conservado; no afecta resultado.
+- `npm.cmd test -- --watch=false`: **5 passed, 3 archivos**. `npm.cmd run build`: exitoso, advertencia ~615 kB iniciales registrada. Auditorías `pip_audit -r backend/requirements.txt` y `npm audit --omit=dev`: sin vulnerabilidades conocidas reportadas en la consulta realizada.
+- Rúbrica renderizada completa (3 páginas) e inspeccionada. Certificado ficticio renderizado: una página, texto/acentos legibles. PDF fecha de emisión en Lima, eventos almacenados UTC.
+- Windows: setup exitoso con dependencias fijadas; check/start -Built/stop y start de desarrollo con puertos 8011/4211 aprobados, `/` y `/api/ready` por proxy 200. Detectado y corregido BOM en JSON generado por PowerShell 5. Solo procesos propios detenidos. No se cambió ninguna política global.
+- Docker imagen final reconstruida; usuario no root, health/ready/SPA 200 y HEALTHCHECK healthy. Smoke HTTP de archivos existente/nuevo contra contenedor: upload/download autorizado y revisión documental aprobados; visitante 401. Storage local compartido con host en carpeta ignorada. Esto no es prueba Supabase Storage real.
+- Demo ficticia local creada en base inicialmente vacía: tres cuentas con claves aleatorias en `.local/demo-credentials.json`, manifiesto privado, organizaciones/documentos ficticios y actividades futuras/histórica. No se imprimen credenciales ni se simula correo real. Seed rechaza base con usuarios y producción.
+- Backup `pg_dump -Fc`, restauración `pg_restore --no-owner --no-acl --exit-on-error` en base exclusiva `voluntia_restore_test`: **23 tablas y 3 usuarios**, original intacta.
+- Creadas guías de ejecución universitaria, despliegue, sustentación, seguridad/operación y matriz. Proveedor correo, URL HTTPS y Storage remoto pendientes.
+
+Siguiente acción exacta: commit del hito final, integrar main con el fix de scope sin reescribir historial, subir rama/PR, prueba completa desde clon limpio con setup/check/start/stop y CI verde. Registrar commit, resultados y enlaces antes de cerrar trabajo local.

@@ -48,6 +48,7 @@ pydantic-core==2.50.5
 pydantic-settings==2.16.3
 pygments==2.21.0
 pyjwt==2.15.1
+pymupdf==1.28.2
 pyparsing==3.3.3
 pypdf==7.1.1
 pytest==9.2.0
@@ -57,6 +58,7 @@ python-multipart==0.0.34
 reportlab==5.1.1
 requests==2.34.2
 rich==15.0.0
+ruff==0.17.6
 sortedcontainers==2.4.0
 sqlalchemy==2.1.9
 starlette==1.10.0
